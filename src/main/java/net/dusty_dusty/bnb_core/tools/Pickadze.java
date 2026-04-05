@@ -1,10 +1,12 @@
-package net.minecraft.world.item;
+package net.dusty_dusty.bnb_core.tools;
 
-import net.dusty_dusty.bnb_core.tools.MineableTags;
+import net.minecraft.world.item.DiggerItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Tier;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class Pickadze extends DiggerItem {
-    public Pickadze(Tier pTier, int pAttackDamageModifier, float pAttackSpeedModifier, Item.Properties pProperties) {
+    public Pickadze(Tier pTier, int pAttackDamageModifier, float pAttackSpeedModifier, Properties pProperties) {
         super((float)pAttackDamageModifier, pAttackSpeedModifier, pTier, MineableTags.MINEABLE_WITH_PICKAXE, pProperties);
     }
 
