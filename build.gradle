@@ -1,7 +1,7 @@
 buildscript {
     repositories {
         // These repositories are only for Gradle plugins, put any other repositories in the repository block further below
-        maven { url = 'https://maven.minecraftforge.net' }
+//        maven { url = 'https://maven.minecraftforge.net' }
         maven { url = 'https://repo.spongepowered.org/repository/maven-public/' } // DH Requirement
         mavenCentral()
     }
@@ -12,7 +12,7 @@ buildscript {
 }
 
 plugins {
-    id 'eclipse'
+//    id 'eclipse'
     id 'idea'
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
@@ -149,14 +149,11 @@ dependencies {
     compileOnly fileTree(dir: 'libs', include: '*.jar') // Needed for copper backport
     implementation fg.deobf("curse.maven:simple-silver-1278462:7104471")
     implementation fg.deobf("curse.maven:deeperdarker-659011:5906086")
-
-    // I need to look at some code for these
-    compileOnly fg.deobf("curse.maven:backported-spears-1385191:7695355")
+    implementation fg.deobf("curse.maven:natures-compass-252848:4712189")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
     implementation fg.deobf("curse.maven:distant-horizons-508933:7375280")
-
 }
 
 tasks.named('processResources', ProcessResources).configure {
