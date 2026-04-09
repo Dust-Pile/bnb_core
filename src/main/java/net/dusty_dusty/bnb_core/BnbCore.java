@@ -1,9 +1,12 @@
 package net.dusty_dusty.bnb_core;
 
 import com.mojang.logging.LogUtils;
+import com.seibel.distanthorizons.api.methods.events.DhApiEventRegister;
+import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiChunkProcessingEvent;
 import net.dusty_dusty.bnb_core.cold_crops.ColdCrops;
 import net.dusty_dusty.bnb_core.cold_crops.data.CropsNSeedsData;
 import net.dusty_dusty.bnb_core.cold_crops.network.PacketChannel;
+import net.dusty_dusty.bnb_core.lod_handling.DhBlockFixer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -28,6 +31,8 @@ public class BnbCore
 
         IEventBus ForgeEventBus = MinecraftForge.EVENT_BUS;
         ForgeEventBus.register(this);
+
+        DhApiEventRegister.on( DhApiChunkProcessingEvent.class, new DhBlockFixer() );
 
         new ColdCrops().initialize( context );
     }

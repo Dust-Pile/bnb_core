@@ -147,6 +147,7 @@ dependencies {
 
     // Minor Fixes
     compileOnly fileTree(dir: 'libs', include: '*.jar') // Needed for copper backport
+    compileOnly fg.deobf("curse.maven:biomes-o-plenty-220318:6364065")
     implementation fg.deobf("curse.maven:simple-silver-1278462:7104471")
     implementation fg.deobf("curse.maven:deeperdarker-659011:5906086")
     implementation fg.deobf("curse.maven:natures-compass-252848:4712189")
