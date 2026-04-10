@@ -12,8 +12,8 @@ import java.util.function.Supplier;
 @Mixin( ModEvents.class )
 public class MixinSSEvents {
 
-    @Shadow
     @Final
+    @Shadow( remap = false )
     private static Supplier<Set<ItemLike>> SILVER_TOOLS;
 
     @Unique

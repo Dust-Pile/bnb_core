@@ -15,10 +15,10 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin( CastingBlockEntity.class )
 public abstract class MixinCastingRecipe {
 
-    @Shadow
+    @Shadow( remap = false )
     public SmartInventory moldInv;
 
-    @Shadow
+    @Shadow( remap = false )
     public CastingFluidTank inputTank;
 
     @Redirect( method = "updateCasting",

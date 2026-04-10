@@ -10,14 +10,14 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin( DDTiers.class )
 public class MixinDDTiers {
 
-    @Shadow
     @Final
+    @Shadow( remap = false )
     private int durability;
-    @Shadow
     @Final
+    @Shadow( remap = false )
     private float speed;
-    @Shadow
     @Final
+    @Shadow( remap = false )
     private float damage;
 
     /**

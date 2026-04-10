@@ -46,17 +46,17 @@ public abstract class MixinBiomeUtils {
         return biomeKeys;
     }
 
-    @Shadow
+    @Shadow( remap = false )
     public static Optional<? extends Registry<Biome>> getBiomeRegistry(Level level) {
         return Optional.empty();
     }
 
-    @Shadow
+    @Shadow( remap = false )
     public static Optional<ResourceLocation> getKeyForBiome(Level level, Biome biome) {
         return Optional.empty();
     }
 
-    @Shadow
+    @Shadow( remap = false )
     public static boolean biomeKeyIsBlacklisted(Level level, ResourceLocation biomeKey) {
         return false;
     }

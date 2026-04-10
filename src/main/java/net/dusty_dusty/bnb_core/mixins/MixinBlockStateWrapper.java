@@ -19,7 +19,7 @@ public abstract class MixinBlockStateWrapper {
 
     @Final
     public BlockState blockState;
-    @Shadow
+    @Shadow( remap = false )
     private String serialString;
 
 //    @Inject( method = "calculateEDhApiBlockMaterialId", at = @At( "RETURN" ), cancellable = true, remap = false )
@@ -149,10 +149,10 @@ public abstract class MixinBlockStateWrapper {
 		}
 	}
 
-    @Shadow
-    abstract boolean isLiquid();
+    @Shadow( remap = false )
+    public abstract boolean isLiquid();
 
-    @Shadow
-    abstract String getSerialString();
+    @Shadow( remap = false )
+    public abstract String getSerialString();
 
 }

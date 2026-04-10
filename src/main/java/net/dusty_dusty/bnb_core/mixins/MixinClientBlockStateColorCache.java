@@ -27,7 +27,8 @@ public abstract class MixinClientBlockStateColorCache {
     @Final
     private static RandomSource RANDOM;
 
-    @Shadow
+    @Final
+    @Shadow( remap = false )
     private BlockState blockState;
 
     /// Doesn't Work :/
@@ -42,8 +43,8 @@ public abstract class MixinClientBlockStateColorCache {
 //        }
 //    }
 
-    @Shadow
     @Final
+    @Shadow( remap = false )
     private static DhLogger LOGGER;
 
     /**
