@@ -145,7 +145,7 @@ dependencies {
     implementation fg.deobf("curse.maven:create-328085:7178761")
     implementation fg.deobf("curse.maven:create-metallurgy-1007404:7729214")
 
-    // Minor Fixes
+    // Mixin / Compile
     compileOnly fileTree(dir: 'libs', include: '*.jar') // Needed for copper backport
     compileOnly fg.deobf("curse.maven:biomes-o-plenty-220318:6364065")
     implementation fg.deobf("curse.maven:simple-silver-1278462:7104471")
