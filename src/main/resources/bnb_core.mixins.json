@@ -9,6 +9,7 @@
     "MixinCastingRecipe",
     "MixinClientBlockStateColorCache",
     "MixinCropBlock",
+    "MixinModRegistry",
     "MixinSSEvents",
     "lowlands.MixinQualityPlantFibersItem",
     "lowlands.MixinSlimyFibersItem",
