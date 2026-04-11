@@ -29,7 +29,12 @@ public class DhBlockFixer extends DhApiChunkProcessingEvent {
             DhBlockFixer.load();
         }
 
-        BlockState eventBlock = ( (BlockState) event.currentBlock.getWrappedMcObject() );
+        BlockState eventBlock;
+        if ( event.currentBlock.getWrappedMcObject() == null ) {
+            return;
+        }
+
+        eventBlock = ( (BlockState) event.currentBlock.getWrappedMcObject() );
         if ( eventBlock.is( floweringOak ) ) {
             event.setBlockOverride( oakLeaves );
         } else if ( eventBlock.is( rainbowBirchLeaves ) ) {
