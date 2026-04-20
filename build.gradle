@@ -150,11 +150,11 @@ dependencies {
     compileOnly fg.deobf("curse.maven:simple-silver-1278462:7104471")
     compileOnly fg.deobf("curse.maven:deeperdarker-659011:5906086")
     compileOnly fg.deobf("curse.maven:natures-compass-252848:4712189")
-    implementation fg.deobf("curse.maven:metal-bundles-891325:5157075")
+    compileOnly fg.deobf("curse.maven:metal-bundles-891325:5157075")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
-    implementation fg.deobf("curse.maven:distant-horizons-508933:7375280")
+    implementation fg.deobf("curse.maven:distant-horizons-508933:7948170")
 }
 
 tasks.named('processResources', ProcessResources).configure {

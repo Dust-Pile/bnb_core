@@ -2,8 +2,8 @@ package net.dusty_dusty.bnb_core.lod_handling;
 
 import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiChunkProcessingEvent;
 import com.seibel.distanthorizons.api.methods.events.sharedParameterObjects.DhApiEventParam;
-import loaderCommon.forge.com.seibel.distanthorizons.common.wrappers.block.BlockStateWrapper;
-import loaderCommon.forge.com.seibel.distanthorizons.common.wrappers.world.ServerLevelWrapper;
+import com.seibel.distanthorizons.common.wrappers.block.BlockStateWrapper_forge;
+import com.seibel.distanthorizons.common.wrappers.world.ServerLevelWrapper_forge;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Block;
@@ -14,9 +14,9 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 
 public class DhBlockFixer extends DhApiChunkProcessingEvent {
 
-    private static ServerLevelWrapper overworld;
-    private static BlockStateWrapper oakLeaves;
-    private static BlockStateWrapper rainbowBlock;
+    private static ServerLevelWrapper_forge overworld;
+    private static BlockStateWrapper_forge oakLeaves;
+    private static BlockStateWrapper_forge rainbowBlock;
 
     private static Block floweringOak;
     private static Block rainbowBirchLeaves;
@@ -43,7 +43,7 @@ public class DhBlockFixer extends DhApiChunkProcessingEvent {
     }
 
     public static void load() {
-        overworld = ServerLevelWrapper.getWrapper(
+        overworld = ServerLevelWrapper_forge.getWrapper(
                 ServerLifecycleHooks.getCurrentServer().getLevel( ServerLevel.OVERWORLD ) );
 
         floweringOak = ForgeRegistries.BLOCKS.getValue(
@@ -57,7 +57,7 @@ public class DhBlockFixer extends DhApiChunkProcessingEvent {
         rainbowBlock = DhBlockFixer.wrap( Blocks.MAGENTA_TERRACOTTA.defaultBlockState() );
     }
 
-    private static BlockStateWrapper wrap( BlockState state ) {
-        return BlockStateWrapper.fromBlockState( state,  overworld );
+    private static BlockStateWrapper_forge wrap( BlockState state ) {
+        return BlockStateWrapper_forge.fromBlockState( state,  overworld );
     }
 }
