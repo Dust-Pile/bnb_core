@@ -2,7 +2,6 @@ package net.dusty_dusty.bnb_core.cold_crops.network;
 
 import net.dusty_dusty.bnb_core.cold_crops.data.CropData;
 import net.dusty_dusty.bnb_core.cold_crops.data.CropsNSeedsData;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -32,11 +31,8 @@ public class SyncDataPacket {
 
     @SuppressWarnings({"UnusedReturnValue", "unused"})
     public static boolean handle(SyncDataPacket message, Supplier<NetworkEvent.Context> contextSupplier) {
-        if ( Minecraft.getInstance().player != null ) {
-            CropsNSeedsData.CROPS_MAP = message.crop_map;
-            CropsNSeedsData.SEEDS_LIST = message.seeds_list;
-        }
-
+        CropsNSeedsData.setCropsMap( message.crop_map );
+        CropsNSeedsData.setSeedsList( message.seeds_list );
         return true;
     }
 }

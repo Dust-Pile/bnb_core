@@ -34,7 +34,8 @@ public class BnbCore
 
         IEventBus ForgeEventBus = MinecraftForge.EVENT_BUS;
         ForgeEventBus.register( this );
-        EventManager.addListener( this::onSeasonChange );
+//        EventManager.addListener( this::onSeasonChangeSTD );
+//        EventManager.addListener( this::onSeasonChangeTROP );
 
         DhApiEventRegister.on( DhApiChunkProcessingEvent.class, new DhBlockFixer() );
 
@@ -50,7 +51,10 @@ public class BnbCore
         event.addListener(CropsNSeedsData.instance);
     }
 
-    public void onSeasonChange( SeasonChangedEvent event ) {
-        DhApi.Delayed.renderProxy.clearRenderDataCache();
-    }
+//    public void onSeasonChangeSTD( SeasonChangedEvent.Standard event ) {
+//        DhApi.Delayed.renderProxy.clearRenderDataCache();
+//    }
+//    public void onSeasonChangeTROP( SeasonChangedEvent.Tropical event ) {
+//        DhApi.Delayed.renderProxy.clearRenderDataCache();
+//    }
 }

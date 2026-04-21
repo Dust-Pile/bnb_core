@@ -28,6 +28,12 @@ public class CropsNSeedsData extends SimpleJsonResourceReloadListener {
         SEEDS_LIST = new HashMap<>();
     }
 
+    public static void setCropsMap(HashMap<String, CropData> cropsMap) {
+        CROPS_MAP = cropsMap;
+    }
+    public static void setSeedsList(HashMap<String, String> seedsList) {
+        SEEDS_LIST = seedsList;
+    }
 
     @SuppressWarnings("NullableProblems")
     @Override
@@ -50,9 +56,12 @@ public class CropsNSeedsData extends SimpleJsonResourceReloadListener {
         BnbCore.LOGGER.info("{} seed(s) with temp stats were added", SEEDS_LIST.size());
 
         //TODO this
-        if (FMLEnvironment.dist == Dist.DEDICATED_SERVER)
+        if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
             try {
                 PacketChannel.sendToAllClients(new SyncDataPacket(CROPS_MAP, SEEDS_LIST));
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+
+            }
+        }
     }
 }
