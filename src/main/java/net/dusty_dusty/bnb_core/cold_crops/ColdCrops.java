@@ -52,7 +52,6 @@ public class ColdCrops {
     }
 
     public void registerTooltip(RegisterClientTooltipComponentFactoriesEvent event) {
-
         event.register(TempTooltipComponent.class, ClientTempTooltipComponent::new);
     }
 

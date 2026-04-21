@@ -5,9 +5,7 @@
   "refmap": "bnb_core.refmap.json",
   "mixins": [
     "MixinBiomeUtils",
-    "MixinBlockStateWrapper",
     "MixinCastingRecipe",
-    "MixinClientBlockStateColorCache",
     "MixinCropBlock",
     "MixinModRegistry",
     "MixinSSEvents",

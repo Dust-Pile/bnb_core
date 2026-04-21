@@ -138,23 +138,30 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
+    //Required Libs
+    implementation fg.deobf("curse.maven:glitchcore-955399:5787839")
+
+    // Main mods
     implementation fg.deobf("curse.maven:cold-sweat-506194:7193948")
     implementation fg.deobf("curse.maven:jade-324717:5672013")
-    implementation fg.deobf("curse.maven:jei-238222:6600311")
     implementation fg.deobf("curse.maven:meds-and-herbs-418682:4840824")
     implementation fg.deobf("curse.maven:create-328085:7178761")
     implementation fg.deobf("curse.maven:create-metallurgy-1007404:7729214")
+    implementation fg.deobf("curse.maven:serene-seasons-291874:6398227")
 
     // Mixin / Compile
     compileOnly fileTree(dir: 'libs', include: '*.jar') // Needed for copper backport
     compileOnly fg.deobf("curse.maven:simple-silver-1278462:7104471")
     compileOnly fg.deobf("curse.maven:deeperdarker-659011:5906086")
     compileOnly fg.deobf("curse.maven:natures-compass-252848:4712189")
-    implementation fg.deobf("curse.maven:metal-bundles-891325:5157075")
+    compileOnly fg.deobf("curse.maven:metal-bundles-891325:5157075")
+
+    // Helpers
+    // implementation fg.deobf("curse.maven:jei-238222:6600311")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
-    implementation fg.deobf("curse.maven:distant-horizons-508933:7375280")
+    implementation fg.deobf("curse.maven:distant-horizons-508933:7948170")
 }
 
 tasks.named('processResources', ProcessResources).configure {
