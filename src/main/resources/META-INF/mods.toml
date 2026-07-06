@@ -78,3 +78,21 @@ description = '''${mod_description}'''
     versionRange="*"
     ordering="AFTER"
     side="BOTH"
+[[dependencies.${mod_id}]]
+    modId="sophisticatedcore"
+    mandatory=true
+    versionRange="*"
+    ordering="AFTER"
+    side="BOTH"
+[[dependencies.${mod_id}]]
+    modId="sophisticatedstorage"
+    mandatory=true
+    versionRange="*"
+    ordering="AFTER"
+    side="BOTH"
+[[dependencies.${mod_id}]]
+    modId="copperagebackport"
+    mandatory=true
+    versionRange="*"
+    ordering="BEFORE"
+    side="BOTH"
