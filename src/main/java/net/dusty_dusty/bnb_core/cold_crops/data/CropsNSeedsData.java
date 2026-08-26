@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class CropsNSeedsData extends SimpleJsonResourceReloadListener {
     public Map<ResourceLocation , CropData> CROPS_MAP;
-    public Map<ResourceLocation, ResourceLocation> SEEDS_LIST; // Seed resloc string, block/crop resloc string
+    public Map<Item, ResourceLocation> SEEDS_LIST; // Seed resloc string, block/crop resloc string
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     public CropsNSeedsData() {
@@ -28,7 +28,7 @@ public class CropsNSeedsData extends SimpleJsonResourceReloadListener {
     public void setCropsMap(Map<ResourceLocation, CropData> cropsMap) {
         CROPS_MAP = cropsMap;
     }
-    public void setSeedsList(Map<ResourceLocation, ResourceLocation> seedsList) {
+    public void setSeedsList(Map<Item, ResourceLocation> seedsList) {
         SEEDS_LIST = seedsList;
     }
 

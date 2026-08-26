@@ -2,15 +2,13 @@ package net.dusty_dusty.bnb_core.cold_crops.data;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.serialization.JsonOps;
 import com.momosoftworks.coldsweat.api.util.Temperature;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,7 +19,7 @@ public class CropData {
     private Temperature.Units type; //C or F
     private Optional<Block> transformCold;
     private Optional<Block> transformHot;//The Block to transform to when frozen
-    private ResourceLocation seedItem;
+    private Item seedItem;
     private Optional<Integer> minTemp; //below this temp the plant freezes
     private Optional<Integer> maxTemp; //above this temp the plant dies
 
@@ -66,9 +64,8 @@ public class CropData {
         if (supposedSeed != null) {
             ResourceLocation location = ResourceLocation.parse(supposedSeed);
             //we do this to ensure we don't get air
-            ResourceLocation targetLoc = ForgeRegistries.ITEMS.getKey(ForgeRegistries.ITEMS.getValue(location));
-            //noinspection DataFlowIssue
-            if (!targetLoc.getPath().equals("air")) {
+            Item targetLoc = ForgeRegistries.ITEMS.getValue(location);
+            if (targetLoc != Items.AIR) {
                 this.seedItem = targetLoc;
             } else {
                 this.seedItem = null;
@@ -79,7 +76,7 @@ public class CropData {
     }
 
     public CropData(Temperature.Units units, Optional<Block> transformCold, Optional<Block> transformHot,
-                    ResourceLocation seedItem, Optional<Integer> i1, Optional<Integer> i) {
+                    Item seedItem, Optional<Integer> i1, Optional<Integer> i) {
         this.type = units;
         this.transformCold = transformCold;
         this.transformHot = transformHot;
@@ -131,7 +128,7 @@ public class CropData {
         return type;
     }
 
-    public @Nullable ResourceLocation getSeedItem() {
+    public @Nullable Item getSeedItem() {
         return seedItem;
     }
 
@@ -139,7 +136,7 @@ public class CropData {
         packet.writeEnum(type);
         packet.writeOptional(transformCold, (FriendlyByteBuf buf, Block block) -> buf.writeId(BuiltInRegistries.BLOCK,block));
         packet.writeOptional(transformHot, (FriendlyByteBuf buf, Block block) -> buf.writeId(BuiltInRegistries.BLOCK,block));
-        packet.writeResourceLocation(this.seedItem);
+        packet.writeId(BuiltInRegistries.ITEM,this.seedItem);
         packet.writeOptional(this.minTemp, FriendlyByteBuf::writeInt);
         packet.writeOptional(this.maxTemp, FriendlyByteBuf::writeInt);
     }
@@ -148,7 +145,7 @@ public class CropData {
         Temperature.Units units = buf.readEnum(Temperature.Units.class);
         Optional<Block> transformCold = buf.readOptional(buf1 -> buf1.readById(BuiltInRegistries.BLOCK));
         Optional<Block> transformHot = buf.readOptional(buf1 -> buf1.readById(BuiltInRegistries.BLOCK));
-        ResourceLocation seedItem = buf.readResourceLocation();
+        Item seedItem = buf.readById(BuiltInRegistries.ITEM);
         Optional<Integer> cold = buf.readOptional(FriendlyByteBuf::readInt);
         Optional<Integer> hot = buf.readOptional(FriendlyByteBuf::readInt);
 
