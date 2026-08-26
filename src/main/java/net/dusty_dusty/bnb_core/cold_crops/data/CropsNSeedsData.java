@@ -10,8 +10,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +23,6 @@ public class CropsNSeedsData extends SimpleJsonResourceReloadListener {
 
     public CropsNSeedsData() {
         super(GSON, "bnbcore");
-        CROPS_MAP = new HashMap<>();
-        SEEDS_LIST = new HashMap<>();
     }
 
     public void setCropsMap(Map<ResourceLocation, CropData> cropsMap) {

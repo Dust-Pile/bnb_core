@@ -7,6 +7,7 @@ import net.dusty_dusty.bnb_core.cold_crops.data.CropsNSeedsData;
 import net.dusty_dusty.bnb_core.cold_crops.tooltip.ClientTempTooltipComponent;
 import net.dusty_dusty.bnb_core.cold_crops.tooltip.TempTooltipComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.minecraftforge.client.event.RenderTooltipEvent;
