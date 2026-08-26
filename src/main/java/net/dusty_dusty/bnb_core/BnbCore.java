@@ -44,6 +44,9 @@ public class BnbCore
         DhApiEventRegister.on( DhApiChunkProcessingEvent.class, new DhBlockFixer() );
 
         ColdCrops.initialize( context,dist );
+        if (dist.isClient()) {
+            BnbCoreClient.init(modEventBus);
+        }
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {

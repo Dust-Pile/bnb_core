@@ -53,7 +53,7 @@ public class CropsNSeedsData extends SimpleJsonResourceReloadListener {
 
         //TODO this
             try {
-                PacketChannel.sendToAllClients(new SyncDataPacket(CROPS_MAP, SEEDS_LIST));
+                PacketChannel.sendToAllClients(new SyncDataPacket(CROPS_MAP));
             } catch (Exception ignored) {
 
             }

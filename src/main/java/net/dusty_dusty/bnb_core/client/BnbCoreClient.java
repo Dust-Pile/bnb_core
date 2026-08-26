@@ -8,15 +8,15 @@ import net.dusty_dusty.bnb_core.cold_crops.tooltip.ClientTempTooltipComponent;
 import net.dusty_dusty.bnb_core.cold_crops.tooltip.TempTooltipComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.minecraftforge.client.event.RenderTooltipEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class BnbCoreClient {
@@ -24,24 +24,30 @@ public class BnbCoreClient {
     private static CropsNSeedsData cropsNSeedsData = new CropsNSeedsData();
 
     public static void init(IEventBus bus) {
-
+        MinecraftForge.EVENT_BUS.addListener(BnbCoreClient::onTooltip);
+        MinecraftForge.EVENT_BUS.addListener(BnbCoreClient::onPlayerLeave);
     }
 
     public static CropsNSeedsData getCropsNSeedsData() {
         return cropsNSeedsData;
     }
 
-    public static void setCropsMap(Map<ResourceLocation, CropData> cropMap) {
-        cropsNSeedsData.setCropsMap(cropMap);
-    }
+    public static void setMaps(Map<ResourceLocation, CropData> cropMap) {
+        Map<Item,ResourceLocation> seedList = new HashMap<>();
 
-    public static void setSeedsList(Map<Item, ResourceLocation> seedsList) {
-        cropsNSeedsData.setSeedsList(seedsList);
+        for (Map.Entry<ResourceLocation, CropData> entry : cropMap.entrySet()) {//recreating the list on the client saves bandwidth
+            if (entry.getValue().getSeedItem() != null) {
+                seedList.put(entry.getValue().getSeedItem(), entry.getKey());
+            }
+        }
+
+        cropsNSeedsData.setCropsMap(cropMap);
+        cropsNSeedsData.setSeedsList(seedList);
     }
 
     public static void onTooltip(RenderTooltipEvent.GatherComponents event) {
 
-        ResourceLocation resLoc = ForgeRegistries.ITEMS.getKey(event.getItemStack().getItem());
+        Item resLoc = event.getItemStack().getItem();
         if (cropsNSeedsData.SEEDS_LIST.containsKey(resLoc)) {
             CropData data = cropsNSeedsData.CROPS_MAP.get(cropsNSeedsData.SEEDS_LIST.get(resLoc));
             event.getTooltipElements().add(1, Either.right(new TempTooltipComponent(data)));

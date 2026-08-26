@@ -30,10 +30,6 @@ public class ColdCrops {
         IEventBus ForgeEventBus = MinecraftForge.EVENT_BUS;
         ForgeEventBus.addListener(ColdCrops::onCropGrowth);
         ForgeEventBus.addListener(ColdCrops::onTreeGrowth);
-        if (dist.isClient()) {
-            ForgeEventBus.addListener(BnbCoreClient::onTooltip);
-            ForgeEventBus.addListener(BnbCoreClient::onPlayerLeave);
-        }
     }
 
     public static void onCropGrowth(BlockEvent.CropGrowEvent.Pre event) {
