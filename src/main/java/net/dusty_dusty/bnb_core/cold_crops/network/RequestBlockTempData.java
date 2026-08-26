@@ -7,15 +7,10 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class RequestBlockTempData {
-    public BlockPos cropPos;
-
-    public RequestBlockTempData(BlockPos cropPos) {
-        this.cropPos = cropPos;
-    }
+public record RequestBlockTempData(BlockPos cropPos) {
 
     public RequestBlockTempData(FriendlyByteBuf buf) {
-        this.cropPos = buf.readBlockPos();
+        this(buf.readBlockPos());
     }
 
     public void encode(FriendlyByteBuf buf) {
@@ -23,12 +18,14 @@ public class RequestBlockTempData {
     }
 
     @SuppressWarnings({"UnusedReturnValue", "unused"})
-    static public boolean handle(RequestBlockTempData message, Supplier<NetworkEvent.Context> contextSupplier ) {
+    static public boolean handle(RequestBlockTempData message, Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context netCtx = contextSupplier.get();
-        if ( netCtx.getSender() == null ) { return false; }
+        if (netCtx.getSender() == null) {
+            return false;
+        }
 
-        double temperature = WorldHelper.getTemperatureAt( netCtx.getSender().level(), message.cropPos );
-        PacketChannel.sendToClient( new RecordBlockTempData( message.cropPos, temperature), netCtx.getSender() );
+        double temperature = WorldHelper.getTemperatureAt(netCtx.getSender().level(), message.cropPos);
+        PacketChannel.sendToClient(new RecordBlockTempData(message.cropPos, temperature), netCtx.getSender());
 
         return true;
     }

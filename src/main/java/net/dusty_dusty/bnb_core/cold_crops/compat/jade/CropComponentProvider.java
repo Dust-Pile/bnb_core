@@ -67,9 +67,9 @@ public class CropComponentProvider implements IBlockComponentProvider {
 
     @Override
     public void appendTooltip(ITooltip iTooltip, BlockAccessor blockAccessor, IPluginConfig iPluginConfig) {
-        @SuppressWarnings("DataFlowIssue") String blockResLoc = ForgeRegistries.BLOCKS.getKey(blockAccessor.getBlock()).toString();
-
-        if (CropsNSeedsData.CROPS_MAP.containsKey(blockResLoc) && blockAccessor.getLevel() != null) {
+        ResourceLocation blockResLoc = ForgeRegistries.BLOCKS.getKey(blockAccessor.getBlock());
+        CropsNSeedsData cropsNSeedsData = BnbCore.getCropsAndSeedsData(blockAccessor.getLevel());
+        if (cropsNSeedsData.CROPS_MAP.containsKey(blockResLoc) && blockAccessor.getLevel() != null) {
             clientBlockPos = blockAccessor.getPosition();
 
             if ( clientBlockPos.distManhattan( curBlockPos ) > 0.1 ) {
@@ -87,7 +87,7 @@ public class CropComponentProvider implements IBlockComponentProvider {
             int temperature = curTemperature;
 
             String tempType = ClientSettingsConfig.USE_CELSIUS.get() ? "°C" : "°F";
-            CropData data = CropsNSeedsData.CROPS_MAP.get(blockResLoc);
+            CropData data = cropsNSeedsData.CROPS_MAP.get(blockResLoc);
 
             ChatFormatting formatting = ChatFormatting.GREEN;
 

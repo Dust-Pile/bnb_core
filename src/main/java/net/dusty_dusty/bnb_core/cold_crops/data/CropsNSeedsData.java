@@ -17,21 +17,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CropsNSeedsData extends SimpleJsonResourceReloadListener {
-    public static HashMap<String , CropData> CROPS_MAP;
-    public static HashMap<String, String> SEEDS_LIST; // Seed resloc string, block/crop resloc string
+    public Map<ResourceLocation , CropData> CROPS_MAP;
+    public Map<ResourceLocation, ResourceLocation> SEEDS_LIST; // Seed resloc string, block/crop resloc string
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-    public static final CropsNSeedsData instance = new CropsNSeedsData();
 
-    private CropsNSeedsData() {
+    public CropsNSeedsData() {
         super(GSON, "bnbcore");
         CROPS_MAP = new HashMap<>();
         SEEDS_LIST = new HashMap<>();
     }
 
-    public static void setCropsMap(HashMap<String, CropData> cropsMap) {
+    public void setCropsMap(Map<ResourceLocation, CropData> cropsMap) {
         CROPS_MAP = cropsMap;
     }
-    public static void setSeedsList(HashMap<String, String> seedsList) {
+    public void setSeedsList(Map<ResourceLocation, ResourceLocation> seedsList) {
         SEEDS_LIST = seedsList;
     }
 
@@ -41,27 +40,29 @@ public class CropsNSeedsData extends SimpleJsonResourceReloadListener {
         CROPS_MAP = new HashMap<>();
         SEEDS_LIST = new HashMap<>();
         elementMap.forEach((resourceLocation, jsonElement) -> {
-            String savedAsName = resourceLocation.toString().split(":")[1].replace('/', ':');
 
             CropData cropData = new CropData(jsonElement);
 
-            CROPS_MAP.put(savedAsName, cropData);
-            if (cropData.getSeedItem() != null) SEEDS_LIST.put(cropData.getSeedItem().toString(), savedAsName);
-            else BnbCore.LOGGER.warn("NO VALID SEED ASSIGNED TO {}", savedAsName);
+            CROPS_MAP.put(resourceLocation, cropData);
+            if (cropData.getSeedItem() != null) SEEDS_LIST.put(cropData.getSeedItem(), resourceLocation);
+            else BnbCore.LOGGER.warn("NO VALID SEED ASSIGNED TO {}", resourceLocation);
 
-            BnbCore.LOGGER.info("E: {} || {}", savedAsName, jsonElement);
+            BnbCore.LOGGER.info("E: {} || {}", resourceLocation, jsonElement);
         });
 
         BnbCore.LOGGER.info("{} crop(s) with temp stats were added", CROPS_MAP.size());
         BnbCore.LOGGER.info("{} seed(s) with temp stats were added", SEEDS_LIST.size());
 
         //TODO this
-        if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
             try {
                 PacketChannel.sendToAllClients(new SyncDataPacket(CROPS_MAP, SEEDS_LIST));
             } catch (Exception ignored) {
 
             }
-        }
+    }
+
+    public void clear() {
+        CROPS_MAP.clear();
+        SEEDS_LIST.clear();
     }
 }
