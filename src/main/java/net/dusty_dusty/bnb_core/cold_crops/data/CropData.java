@@ -4,10 +4,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 import com.momosoftworks.coldsweat.api.util.Temperature;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
@@ -15,10 +17,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class CropData implements INBTSerializable<CompoundTag> {
+public class CropData {
     private Temperature.Units type; //C or F
-    private Optional<ResourceLocation> transformCold;
-    private Optional<ResourceLocation> transformHot;//The Block to transform to when frozen
+    private Optional<Block> transformCold;
+    private Optional<Block> transformHot;//The Block to transform to when frozen
     private ResourceLocation seedItem;
     private Optional<Integer> minTemp; //below this temp the plant freezes
     private Optional<Integer> maxTemp; //above this temp the plant dies
@@ -45,7 +47,7 @@ public class CropData implements INBTSerializable<CompoundTag> {
         if (supposedTransform != null) {
             ResourceLocation location = ResourceLocation.parse(supposedTransform);
             //we do this to ensure we get air if the given block is invalid
-            this.transformHot = Optional.ofNullable(ForgeRegistries.BLOCKS.getKey(ForgeRegistries.BLOCKS.getValue(location)));
+            this.transformHot = Optional.ofNullable(ForgeRegistries.BLOCKS.getValue(location));
         } else {
             this.transformHot = Optional.empty();
         }
@@ -55,7 +57,7 @@ public class CropData implements INBTSerializable<CompoundTag> {
         if (supposedTransform != null) {
             ResourceLocation location = ResourceLocation.parse(supposedTransform);
             //we do this to ensure we get air if the given block is invalid
-            this.transformCold = Optional.ofNullable(ForgeRegistries.BLOCKS.getKey(ForgeRegistries.BLOCKS.getValue(location)));
+            this.transformCold = Optional.ofNullable(ForgeRegistries.BLOCKS.getValue(location));
         } else {
             this.transformCold = Optional.empty();
         }
@@ -76,7 +78,7 @@ public class CropData implements INBTSerializable<CompoundTag> {
         }
     }
 
-    public CropData(Temperature.Units units, Optional<ResourceLocation> transformCold, Optional<ResourceLocation> transformHot,
+    public CropData(Temperature.Units units, Optional<Block> transformCold, Optional<Block> transformHot,
                     ResourceLocation seedItem, Optional<Integer> i1, Optional<Integer> i) {
         this.type = units;
         this.transformCold = transformCold;
@@ -103,13 +105,13 @@ public class CropData implements INBTSerializable<CompoundTag> {
         return this.minTemp.isPresent() && this.minTemp.get() > Temperature.convert(num, unit, this.type, true);
     }
 
-    public void onCold(double num, Temperature.Units unit, Consumer<ResourceLocation> consumer) {
+    public void onCold(double num, Temperature.Units unit, Consumer<Block> consumer) {
         if (!(isColder(num, unit))) return;
         if (transformCold.isEmpty()) return;
         consumer.accept(transformCold.get());
     }
 
-    public void onHot(double num, Temperature.Units unit, Consumer<ResourceLocation> consumer) {
+    public void onHot(double num, Temperature.Units unit, Consumer<Block> consumer) {
         if (!(isWarmer(num, unit))) return;
         if (transformHot.isEmpty()) return;
         consumer.accept(transformHot.get());
@@ -133,39 +135,10 @@ public class CropData implements INBTSerializable<CompoundTag> {
         return seedItem;
     }
 
-
-    @Override
-    public CompoundTag serializeNBT() {
-        CompoundTag nbt = new CompoundTag();
-
-        nbt.putString("type", this.type.toString());
-        if (this.transformCold.isPresent()) nbt.putString("transforms_cold", this.transformCold.toString());
-        if (this.transformHot.isPresent()) nbt.putString("transforms_hot", this.transformHot.toString());
-        if (this.seedItem != null) nbt.putString("seed", this.seedItem.toString());
-        this.minTemp.ifPresent(integer -> nbt.putInt("min", integer));
-        this.maxTemp.ifPresent(integer -> nbt.putInt("max", integer));
-
-        return nbt;
-    }
-
-    @Override
-    public void deserializeNBT(CompoundTag nbt) {
-        this.type = Temperature.Units.valueOf(nbt.getString("type").toUpperCase());
-
-        if (nbt.contains("transforms_cold"))
-            this.transformCold = Optional.of(ResourceLocation.parse(nbt.getString("transforms_cold")));
-        if (nbt.contains("transforms_hot"))
-            this.transformHot = Optional.of(ResourceLocation.parse(nbt.getString("transforms_hot")));
-        if (nbt.contains("seed")) this.seedItem = ResourceLocation.parse(nbt.getString("seed"));
-        if (nbt.contains("min")) this.minTemp = Optional.of(nbt.getInt("min"));
-        if (nbt.contains("max")) this.maxTemp = Optional.of(nbt.getInt("max"));
-    }
-
-
     public void toPacket(FriendlyByteBuf packet) {
         packet.writeEnum(type);
-        packet.writeOptional(transformCold, FriendlyByteBuf::writeResourceLocation);
-        packet.writeOptional(transformHot, FriendlyByteBuf::writeResourceLocation);
+        packet.writeOptional(transformCold, (FriendlyByteBuf buf, Block block) -> buf.writeId(BuiltInRegistries.BLOCK,block));
+        packet.writeOptional(transformHot, (FriendlyByteBuf buf, Block block) -> buf.writeId(BuiltInRegistries.BLOCK,block));
         packet.writeResourceLocation(this.seedItem);
         packet.writeOptional(this.minTemp, FriendlyByteBuf::writeInt);
         packet.writeOptional(this.maxTemp, FriendlyByteBuf::writeInt);
@@ -173,8 +146,8 @@ public class CropData implements INBTSerializable<CompoundTag> {
 
     public static CropData fromPacket(FriendlyByteBuf buf) {
         Temperature.Units units = buf.readEnum(Temperature.Units.class);
-        Optional<ResourceLocation> transformCold = buf.readOptional(FriendlyByteBuf::readResourceLocation);
-        Optional<ResourceLocation> transformHot = buf.readOptional(FriendlyByteBuf::readResourceLocation);
+        Optional<Block> transformCold = buf.readOptional(buf1 -> buf1.readById(BuiltInRegistries.BLOCK));
+        Optional<Block> transformHot = buf.readOptional(buf1 -> buf1.readById(BuiltInRegistries.BLOCK));
         ResourceLocation seedItem = buf.readResourceLocation();
         Optional<Integer> cold = buf.readOptional(FriendlyByteBuf::readInt);
         Optional<Integer> hot = buf.readOptional(FriendlyByteBuf::readInt);

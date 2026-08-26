@@ -62,14 +62,14 @@ public class ColdCrops {
                     event.setResult(Event.Result.DENY);
                 }
                 data.onCold(temp, Temperature.Units.MC, (resourceLocation ->
-                        level.setBlock(blockPos, ForgeRegistries.BLOCKS.getValue(resourceLocation).defaultBlockState(), 2)
+                        level.setBlock(blockPos, resourceLocation.defaultBlockState(), 2)
                 ));
 
                 if (data.isWarmer(temp, Temperature.Units.MC)) {
                     event.setResult(Event.Result.DENY);
                 }
                 data.onHot(temp, Temperature.Units.MC, (resourceLocation ->
-                        level.setBlock(blockPos, ForgeRegistries.BLOCKS.getValue(resourceLocation).defaultBlockState(), 2)
+                        level.setBlock(blockPos, resourceLocation.defaultBlockState(), 2)
                 ));
             }
         }
@@ -93,10 +93,10 @@ public class ColdCrops {
                 if (!witherPlant(randomVal, level, blockPos)) {
 
                     data.onHot(temp, Temperature.Units.MC, (resourceLocation ->
-                            level.setBlock(blockPos, ForgeRegistries.BLOCKS.getValue(resourceLocation).defaultBlockState(), 2)
+                            level.setBlock(blockPos,resourceLocation.defaultBlockState(), 2)
                     ));
                     data.onCold(temp, Temperature.Units.MC, (resourceLocation ->
-                            level.setBlock(blockPos, ForgeRegistries.BLOCKS.getValue(resourceLocation).defaultBlockState(), 2)
+                            level.setBlock(blockPos, resourceLocation.defaultBlockState(), 2)
                     ));
                 }
             } else if (randomVal > growOdds) {

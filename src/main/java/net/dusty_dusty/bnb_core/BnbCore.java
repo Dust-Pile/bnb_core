@@ -27,11 +27,13 @@ public class BnbCore
 {
     public static final String MODID = "bnb_core";
     public static final Logger LOGGER = LogUtils.getLogger();
+    public static boolean DEBUG;
     private static CropsNSeedsData serverCropsAndSeedsData;
 
     public BnbCore(FMLJavaModLoadingContext context )
     {
         Dist dist = FMLEnvironment.dist;
+        DEBUG = !FMLEnvironment.production;
         IEventBus modEventBus = context.getModEventBus();
         modEventBus.addListener( this::commonSetup );
 

@@ -1,6 +1,7 @@
 package net.dusty_dusty.bnb_core.cold_crops.network;
 
 import io.netty.buffer.Unpooled;
+import net.dusty_dusty.bnb_core.BnbCore;
 import net.dusty_dusty.bnb_core.client.BnbCoreClient;
 import net.dusty_dusty.bnb_core.cold_crops.data.CropData;
 import net.minecraft.network.FriendlyByteBuf;
@@ -39,7 +40,9 @@ public record SyncDataPacket(Map<ResourceLocation, CropData> crop_map,
     public static boolean handle(SyncDataPacket message, Supplier<NetworkEvent.Context> contextSupplier) {
         BnbCoreClient.setCropsMap(message.crop_map);
         BnbCoreClient.setSeedsList(message.seeds_list);
-        System.out.println("Packet size: "+ message.getNbtSize());
+        if (BnbCore.DEBUG) {
+            System.out.println("Packet size: " + message.getNbtSize());
+        }
         return true;
     }
 }
