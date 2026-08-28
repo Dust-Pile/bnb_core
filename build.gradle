@@ -18,7 +18,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 }
-//apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin' // DH Requirement
 
 version = mod_version
@@ -133,6 +133,11 @@ repositories {
 
     maven { url = "https://api.modrinth.com/maven" }
 
+    maven {//needed by curios
+        name = "Illusive Soulworks maven"
+        url = "https://maven.theillusivec4.top/"
+    }
+
     maven { url 'https://maven.wispforest.io/releases' }
     maven { url 'https://maven.su5ed.dev/releases' }
     maven { url 'https://maven.fabricmc.net' }
@@ -163,7 +168,7 @@ dependencies {
     compileOnly fg.deobf("curse.maven:deeperdarker-659011:5906086")
     compileOnly fg.deobf("curse.maven:natures-compass-252848:4712189")
     compileOnly fg.deobf("curse.maven:metal-bundles-891325:5157075")
-    //implementation fg.deobf("io.wispforest:accessories-neoforge:${project.accessories_version}")
+    //implementation(fg.deobf("io.wispforest:accessories-neoforge:${project.accessories_version}"))
     implementation fg.deobf("curse.maven:create-deco-509285:6373226")
     // Helpers
     // implementation fg.deobf("curse.maven:jei-238222:6600311")
@@ -173,6 +178,11 @@ dependencies {
 
     implementation fg.deobf("curse.maven:distant-horizons-508933:7948170")
     implementation fg.deobf("me.shedaniel.cloth:cloth-config-forge:${project.cloth_config_version}")
+
+    // Compile against only the API artifact
+    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}:api")
+    // Use the full Curios API jar at runtime
+    runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}")
 }
 
 tasks.named('processResources', ProcessResources).configure {

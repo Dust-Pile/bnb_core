@@ -9,6 +9,7 @@
     "MixinCropBlock",
     "MixinModRegistry",
     "MixinSSEvents",
+    "PlayerInventoryMixin",
     "lowlands.MixinQualityPlantFibersItem",
     "lowlands.MixinSlimyFibersItem",
     "tierUpgrade.MixinCopperTier",

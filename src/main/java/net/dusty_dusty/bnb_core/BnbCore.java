@@ -1,13 +1,18 @@
 package net.dusty_dusty.bnb_core;
 
+import com.github.talrey.createdeco.CreateDecoMod;
+import com.github.talrey.createdeco.ItemRegistry;
 import com.mojang.logging.LogUtils;
 import com.seibel.distanthorizons.api.methods.events.DhApiEventRegister;
 import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiChunkProcessingEvent;
+import net.dusty_dusty.bnb_core.accessories.PouchCurio;
 import net.dusty_dusty.bnb_core.client.BnbCoreClient;
 import net.dusty_dusty.bnb_core.cold_crops.ColdCrops;
 import net.dusty_dusty.bnb_core.cold_crops.data.CropsNSeedsData;
 import net.dusty_dusty.bnb_core.cold_crops.network.PacketChannel;
+import net.dusty_dusty.bnb_core.datagen.BnbDatagen;
 import net.dusty_dusty.bnb_core.lod_handling.DhBlockFixer;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -19,7 +24,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.slf4j.Logger;
 
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import top.theillusivec4.curios.api.CuriosApi;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(BnbCore.MODID)
@@ -36,8 +41,8 @@ public class BnbCore
         DEBUG = !FMLEnvironment.production;
         IEventBus modEventBus = context.getModEventBus();
         modEventBus.addListener( this::commonSetup );
-
-        MinecraftForge.EVENT_BUS.register( this );
+        modEventBus.addListener(BnbDatagen::gather);
+        MinecraftForge.EVENT_BUS.addListener(this::jsonReading);
 //        EventManager.addListener( this::onSeasonChangeSTD );
 //        EventManager.addListener( this::onSeasonChangeTROP );
 
@@ -50,10 +55,14 @@ public class BnbCore
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
+        CuriosApi.registerCurio(Items.BUNDLE, new PouchCurio());
         event.enqueueWork(PacketChannel::register);
+
+        if (ModIntegration.createdeco.loaded) {
+            CoinHandler.setup();
+        }
     }
 
-    @SubscribeEvent
     public void jsonReading(AddReloadListenerEvent event) {
         serverCropsAndSeedsData = new CropsNSeedsData();
         event.addListener(serverCropsAndSeedsData);
