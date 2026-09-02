@@ -3,12 +3,16 @@ package net.dusty_dusty.bnb_core;
 import fuzs.metalbundles.world.item.MetalBundleItem;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import net.dusty_dusty.bnb_core.cold_crops.data.CoinData;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BundleItem;
@@ -22,25 +26,69 @@ import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotResult;
 import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CoinHandler {
 
 
     public static final Object2IntMap<Item> COIN_EXCHANGE = new Object2IntArrayMap<>();
-
+    public static final String KILL_CREDIT = "bnbcore:kill_credit";
 
     public static void onLoot(LivingDropsEvent event) {
         LivingEntity entity = event.getEntity();
+        Collection<ItemEntity> drops = event.getDrops();
+        List<ServerPlayer> killCredit = getKillCredits(entity);
+        for (CoinData coinData : BnbCore.getCoinDrops(entity.level()).getData().values()) {
+            if (entity.getType().is(coinData.valid())) {
+                double x = entity.getX();
+                double y = entity.getY();
+                double z = entity.getZ();
+                if (coinData.netheriteCoin()) {
+                    drops.add(new ItemEntity(entity.level(),x,y,z,NETHERITE_COIN.getDefaultInstance()));
+                }
+                int copperCoinCount = (int) (coinData.coinValue().sample(entity.getRandom()) * (1 + killCredit.size()/2f));
+                if (copperCoinCount > 0) {
+                    if (killCredit.size() >= 2) {
+                        int splitCoinCount = copperCoinCount / killCredit.size();
+                        List<ItemStack> coins = getMergedCoins(splitCoinCount);
+                        for (ServerPlayer player : killCredit) {
+                            for (ItemStack coin : coins) {
+                                if (!player.addItem(coin)) {//try giving coin directly to player first
+                                    drops.add(new ItemEntity(entity.level(), x, y, z, coin));
+                                }
+                            }
+                        }
+                    } else {
+                        List<ItemStack> coins = getMergedCoins(copperCoinCount);
+                        for (ItemStack coin : coins) {
+                            drops.add(new ItemEntity(entity.level(), x, y, z, coin));
+                        }
+                    }
+                }
+            }
+        }
+    }
 
+    static List<ServerPlayer> getKillCredits(LivingEntity entity) {
+        CompoundTag tag = entity.getPersistentData();
+        ListTag listTag = tag.getList(KILL_CREDIT, Tag.TAG_STRING);
+        List<ServerPlayer> list = new ArrayList<>();
+        MinecraftServer server = entity.getServer();
+        for (Tag t : listTag) {
+            String s = t.toString();
+            UUID uuid = UUID.fromString(s);
+            ServerPlayer player = server.getPlayerList().getPlayer(uuid);
+            if (player != null) {
+                list.add(player);
+            }
+        }
+        return list;
     }
 
     /**
      * @param inv      Player Inventory to add the item to
      * @param incoming the itemstack being picked up
-     * @return if the item was completely picked up by the dank(s)
+     * @return if the item was completely picked up by the pouch(es)
      */
     public static boolean interceptItem(Inventory inv, ItemStack incoming) {
         Player player = inv.player;
@@ -60,7 +108,8 @@ public class CoinHandler {
                     for (SlotResult slotResult : list) {
                         ItemStack possibleBundle = slotResult.stack();
                         if ((possibleBundle.getItem() instanceof BundleItem ||
-                                (ModIntegration.metalbundles.loaded && possibleBundle.getItem() instanceof MetalBundleItem)) && onItemPickup(player, incoming, possibleBundle)) {
+                                (ModIntegration.metalbundles.loaded && possibleBundle.getItem() instanceof MetalBundleItem))
+                                && onItemPickup(player, incoming, possibleBundle)) {
                             return true;
                         }
                     }
@@ -204,17 +253,19 @@ public class CoinHandler {
     //    'createdeco:gold_coin': 8
 
     public static Item NETHERITE_COIN;
+    public static Item COPPER_COIN;
 
     public static void setup() {
         Registry<Item> registry = BuiltInRegistries.ITEM;
 
         NETHERITE_COIN = registry.get(ModIntegration.createdeco.id("netherite_coin"));
 
+        COPPER_COIN = registry.get(ModIntegration.createdeco.id("copper_coin"));
         CoinHandler.COIN_EXCHANGE.put(registry.get(ModIntegration.createdeco.id("gold_coin")),4*4*6*8);
         CoinHandler.COIN_EXCHANGE.put(registry.get(ModIntegration.createdeco.id("iron_coin")),4*4*6);
         CoinHandler.COIN_EXCHANGE.put(registry.get(ModIntegration.createdeco.id("brass_coin")),4*4);
         CoinHandler.COIN_EXCHANGE.put(registry.get(ModIntegration.createdeco.id("zinc_coin")),4);
-        CoinHandler.COIN_EXCHANGE.put(registry.get(ModIntegration.createdeco.id("copper_coin")),1);
+        CoinHandler.COIN_EXCHANGE.put(COPPER_COIN,1);
 
         MinecraftForge.EVENT_BUS.addListener(CoinHandler::onLoot);
     }

@@ -1,4 +1,4 @@
-package net.dusty_dusty.bnb_core.accessories;
+package net.dusty_dusty.bnb_core.curios;
 
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 

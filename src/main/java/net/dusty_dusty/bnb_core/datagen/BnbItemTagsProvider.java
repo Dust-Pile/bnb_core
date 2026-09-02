@@ -1,7 +1,7 @@
 package net.dusty_dusty.bnb_core.datagen;
 
 import net.dusty_dusty.bnb_core.BnbCore;
-import net.dusty_dusty.bnb_core.BnbItemTags;
+import net.dusty_dusty.bnb_core.tags.BnbItemTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.ItemTagsProvider;
