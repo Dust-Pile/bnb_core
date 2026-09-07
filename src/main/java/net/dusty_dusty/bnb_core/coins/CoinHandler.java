@@ -1,8 +1,12 @@
-package net.dusty_dusty.bnb_core;
+package net.dusty_dusty.bnb_core.coins;
 
 import fuzs.metalbundles.world.item.MetalBundleItem;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import net.dusty_dusty.bnb_core.BnbCore;
+import net.dusty_dusty.bnb_core.ModIntegration;
+import net.dusty_dusty.bnb_core.coins.trades.*;
 import net.dusty_dusty.bnb_core.cold_crops.data.CoinData;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -13,6 +17,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BundleItem;
@@ -21,6 +27,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.village.VillagerTradesEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import org.jetbrains.annotations.Nullable;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotResult;
@@ -67,6 +75,54 @@ public class CoinHandler {
                 }
             }
         }
+    }
+
+    static void modifyTrades(VillagerTradesEvent event) {
+        long begin = System.nanoTime();
+        //replace emerald trades with coins, default silver (iron)
+        Int2ObjectMap<List<VillagerTrades.ItemListing>> trades = event.getTrades();
+        VillagerProfession type = event.getType();
+        for (Map.Entry<Integer, List<VillagerTrades.ItemListing>> entry : trades.entrySet()) {
+            List<VillagerTrades.ItemListing> replacements = new ArrayList<>();
+            for (Iterator<VillagerTrades.ItemListing> iterator = entry.getValue().iterator(); iterator.hasNext(); ) {
+                VillagerTrades.ItemListing listing = iterator.next();
+                if (listing instanceof VillagerTrades.DyedArmorForEmeralds dyedArmorForEmeralds) {
+                    iterator.remove();
+                    replacements.add(DyedArmorForCoins.create(dyedArmorForEmeralds));
+                } else if (listing instanceof VillagerTrades.ItemsForEmeralds itemsForEmeralds) {
+                    iterator.remove();
+                    replacements.add(CoinsForItems.itemsForCoins(itemsForEmeralds));
+                } else if (listing instanceof VillagerTrades.EmeraldForItems emeraldForItems) {
+                    iterator.remove();
+                    replacements.add(CoinsForItems.coinsForItems(emeraldForItems.item,IRON_COIN,emeraldForItems.cost,emeraldForItems.maxUses,
+                            emeraldForItems.villagerXp));
+                } else if (listing instanceof VillagerTrades.EmeraldsForVillagerTypeItem emeraldsForVillagerTypeItem) {
+                    iterator.remove();
+                    replacements.add(CoinsForVillagerTypeItem.create(emeraldsForVillagerTypeItem));
+
+                } else if (listing instanceof VillagerTrades.EnchantBookForEmeralds enchantBookForEmeralds) {
+                    iterator.remove();
+                    replacements.add(EnchantBookForCoins.enchantBookForCoins(enchantBookForEmeralds));
+                } else if (listing instanceof VillagerTrades.EnchantedItemForEmeralds enchantedItemForEmeralds) {
+                    iterator.remove();
+                    replacements.add(EnchantedItemForCoins.create(enchantedItemForEmeralds));
+                } else if (listing instanceof VillagerTrades.ItemsAndEmeraldsToItems itemsAndEmeraldsToItems) {
+                    iterator.remove();
+                    replacements.add(CoinsForItems.itemsAndCoinsToItems(itemsAndEmeraldsToItems));
+                } else if (listing instanceof VillagerTrades.TippedArrowForItemsAndEmeralds tippedArrowForItemsAndEmeralds) {
+                    iterator.remove();
+                    replacements.add(TippedArrowForItemsAndCoins.create(tippedArrowForItemsAndEmeralds));
+                } else if (listing instanceof VillagerTrades.TreasureMapForEmeralds treasureMapForEmeralds) {
+                    iterator.remove();
+                    replacements.add(TreasureMapForCoins.create(treasureMapForEmeralds));
+                } else if (!(listing instanceof CoinTrade)) {
+                    BnbCore.LOGGER.warn("Unknown VillagerTrades type: " + listing.getClass().getName());
+                }
+            }
+            entry.getValue().addAll(replacements);
+        }
+        long end = System.nanoTime();
+        BnbCore.LOGGER.info((end - begin) / 1_000_000d + "ms");
     }
 
     static List<ServerPlayer> getKillCredits(LivingEntity entity) {
@@ -255,18 +311,23 @@ public class CoinHandler {
     public static Item NETHERITE_COIN;
     public static Item COPPER_COIN;
 
+    public static Item IRON_COIN;
+
     public static void setup() {
         Registry<Item> registry = BuiltInRegistries.ITEM;
 
         NETHERITE_COIN = registry.get(ModIntegration.createdeco.id("netherite_coin"));
 
         COPPER_COIN = registry.get(ModIntegration.createdeco.id("copper_coin"));
+        IRON_COIN = registry.get(ModIntegration.createdeco.id("iron_coin"));
+
         CoinHandler.COIN_EXCHANGE.put(registry.get(ModIntegration.createdeco.id("gold_coin")),4*4*6*8);
-        CoinHandler.COIN_EXCHANGE.put(registry.get(ModIntegration.createdeco.id("iron_coin")),4*4*6);
+        CoinHandler.COIN_EXCHANGE.put(IRON_COIN,4*4*6);
         CoinHandler.COIN_EXCHANGE.put(registry.get(ModIntegration.createdeco.id("brass_coin")),4*4);
         CoinHandler.COIN_EXCHANGE.put(registry.get(ModIntegration.createdeco.id("zinc_coin")),4);
         CoinHandler.COIN_EXCHANGE.put(COPPER_COIN,1);
 
         MinecraftForge.EVENT_BUS.addListener(CoinHandler::onLoot);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOW, CoinHandler::modifyTrades);
     }
 }

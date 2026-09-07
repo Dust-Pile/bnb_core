@@ -3,6 +3,7 @@ package net.dusty_dusty.bnb_core;
 import com.mojang.logging.LogUtils;
 import com.seibel.distanthorizons.api.methods.events.DhApiEventRegister;
 import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiChunkProcessingEvent;
+import net.dusty_dusty.bnb_core.coins.CoinHandler;
 import net.dusty_dusty.bnb_core.cold_crops.data.CoinDrops;
 import net.dusty_dusty.bnb_core.curios.PouchCurio;
 import net.dusty_dusty.bnb_core.client.BnbCoreClient;

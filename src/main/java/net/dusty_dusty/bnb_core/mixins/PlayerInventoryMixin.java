@@ -1,6 +1,6 @@
 package net.dusty_dusty.bnb_core.mixins;
 
-import net.dusty_dusty.bnb_core.CoinHandler;
+import net.dusty_dusty.bnb_core.coins.CoinHandler;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
