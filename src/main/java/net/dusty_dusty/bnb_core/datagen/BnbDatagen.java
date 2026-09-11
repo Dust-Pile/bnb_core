@@ -18,5 +18,6 @@ public class BnbDatagen {
         gen.addProvider(true,new BnbItemTagsProvider(output, lookup,blockTagsProvider.contentsGetter(), existingFileHelper));
         gen.addProvider(true,new BnbCuriosDataProvider(event));
         gen.addProvider(true,new CoinDropsProvider(output,lookup));
+        gen.addProvider(true,new BnbRecipeProvider(output));
     }
 }

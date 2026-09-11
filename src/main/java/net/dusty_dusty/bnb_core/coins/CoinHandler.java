@@ -1,5 +1,6 @@
 package net.dusty_dusty.bnb_core.coins;
 
+import com.mojang.datafixers.util.Pair;
 import fuzs.metalbundles.world.item.MetalBundleItem;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
@@ -310,24 +311,48 @@ public class CoinHandler {
 
     public static Item NETHERITE_COIN;
     public static Item COPPER_COIN;
-
+    public static Item ZINC_COIN;
+    public static Item BRASS_COIN;
     public static Item IRON_COIN;
+    public static Item GOLD_COIN;
+
+    public static final int COPPER_PER_ZINC = 3;
+    public static final int ZINC_PER_BRASS = 3;
+    public static final int BRASS_PER_IRON = 6;
+    public static final int IRON_PER_GOLD = 8;
+
+    public static final List<Pair<Item,Integer>> CONVERSIONS = new ArrayList<>();
 
     public static void setup() {
+
+        populate();
+
+        int mult = 1;
+        for (int i = 0; i < CONVERSIONS.size(); i++) {
+            Pair<Item, Integer> pair = CONVERSIONS.get(i);
+            mult *= pair.getSecond();
+            COIN_EXCHANGE.put(pair.getFirst(), mult);
+        }
+
+        MinecraftForge.EVENT_BUS.addListener(CoinHandler::onLoot);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOW, CoinHandler::modifyTrades);
+    }
+
+    public static void populate() {
         Registry<Item> registry = BuiltInRegistries.ITEM;
 
         NETHERITE_COIN = registry.get(ModIntegration.createdeco.id("netherite_coin"));
 
         COPPER_COIN = registry.get(ModIntegration.createdeco.id("copper_coin"));
+        ZINC_COIN = registry.get(ModIntegration.createdeco.id("zinc_coin"));
+        BRASS_COIN = registry.get(ModIntegration.createdeco.id("brass_coin"));
         IRON_COIN = registry.get(ModIntegration.createdeco.id("iron_coin"));
+        GOLD_COIN = registry.get(ModIntegration.createdeco.id("gold_coin"));
 
-        CoinHandler.COIN_EXCHANGE.put(registry.get(ModIntegration.createdeco.id("gold_coin")),4*4*6*8);
-        CoinHandler.COIN_EXCHANGE.put(IRON_COIN,4*4*6);
-        CoinHandler.COIN_EXCHANGE.put(registry.get(ModIntegration.createdeco.id("brass_coin")),4*4);
-        CoinHandler.COIN_EXCHANGE.put(registry.get(ModIntegration.createdeco.id("zinc_coin")),4);
-        CoinHandler.COIN_EXCHANGE.put(COPPER_COIN,1);
-
-        MinecraftForge.EVENT_BUS.addListener(CoinHandler::onLoot);
-        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOW, CoinHandler::modifyTrades);
+        CONVERSIONS.add(Pair.of(COPPER_COIN,1));
+        CONVERSIONS.add(Pair.of(ZINC_COIN,COPPER_PER_ZINC));
+        CONVERSIONS.add(Pair.of(BRASS_COIN,ZINC_PER_BRASS));
+        CONVERSIONS.add(Pair.of(IRON_COIN,BRASS_PER_IRON));
+        CONVERSIONS.add(Pair.of(GOLD_COIN,IRON_PER_GOLD));
     }
 }
