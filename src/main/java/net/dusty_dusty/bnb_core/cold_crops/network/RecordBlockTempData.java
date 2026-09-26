@@ -9,18 +9,10 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class RecordBlockTempData {
-    public BlockPos cropPos;
-    public double temperature;
-
-    public RecordBlockTempData(BlockPos cropPos, double temperature) {
-        this.cropPos = cropPos;
-        this.temperature = temperature;
-    }
+public record RecordBlockTempData(BlockPos cropPos,double temperature){
 
     public RecordBlockTempData(FriendlyByteBuf buf) {
-        this.cropPos = buf.readBlockPos();
-        this.temperature = buf.readDouble();
+        this(buf.readBlockPos(),buf.readDouble());
     }
 
     public void encode(FriendlyByteBuf buf) {

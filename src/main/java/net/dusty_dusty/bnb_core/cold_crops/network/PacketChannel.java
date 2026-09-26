@@ -39,7 +39,7 @@ public class PacketChannel {
                 .buildLoginPacketList( bool -> {
                     List<Pair<String, SyncDataPacket>> list = new ArrayList<>();
                     list.add( Pair.of( CHANNEL_ID,
-                            new SyncDataPacket(CropsNSeedsData.CROPS_MAP, CropsNSeedsData.SEEDS_LIST) ) );
+                            new SyncDataPacket(BnbCore.getCropsAndSeedsDataUnsafe().CROPS_MAP) ));
                     return list;
                 })
                 .noResponse()

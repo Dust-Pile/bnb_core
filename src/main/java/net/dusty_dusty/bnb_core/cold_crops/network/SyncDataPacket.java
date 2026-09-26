@@ -1,38 +1,44 @@
 package net.dusty_dusty.bnb_core.cold_crops.network;
 
+import io.netty.buffer.Unpooled;
+import net.dusty_dusty.bnb_core.BnbCore;
+import net.dusty_dusty.bnb_core.client.BnbCoreClient;
 import net.dusty_dusty.bnb_core.cold_crops.data.CropData;
-import net.dusty_dusty.bnb_core.cold_crops.data.CropsNSeedsData;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkEvent;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
-public class SyncDataPacket {
-    public HashMap<String , CropData> crop_map;
-    public HashMap<String, String> seeds_list; // Seed resloc string, block/crop resloc string
-
+/**
+ * @param seeds_list Seed resloc string, block/crop resloc string
+ */
+public record SyncDataPacket(Map<ResourceLocation, CropData> crop_map) {
     //TODO Not a TODO but a reminder, This packet can become too big
 
-    public SyncDataPacket(HashMap<String , CropData> crop_map, HashMap<String, String> seeds_list) {
-        this.crop_map = crop_map;
-        this.seeds_list = seeds_list;
+    public int getNbtSize() {
+        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+        encode(buffer);
+        buffer.release();
+        return buffer.writerIndex();
     }
 
     public SyncDataPacket(FriendlyByteBuf buf) {
-        this.crop_map = (HashMap<String, CropData>) buf.readMap(FriendlyByteBuf::readUtf, buffer -> CropData.fromNBT(buffer.readNbt()));
-        this.seeds_list = (HashMap<String, String>) buf.readMap(FriendlyByteBuf::readUtf, FriendlyByteBuf::readUtf);
+        this(buf.readMap(FriendlyByteBuf::readResourceLocation, CropData::fromPacket));
     }
 
     public void encode(FriendlyByteBuf buf) {
-        buf.writeMap(crop_map, FriendlyByteBuf::writeUtf, ((friendlyByteBuf, data) -> friendlyByteBuf.writeNbt(data.serializeNBT())));
-        buf.writeMap(seeds_list, FriendlyByteBuf::writeUtf, FriendlyByteBuf::writeUtf);
+        buf.writeMap(crop_map, FriendlyByteBuf::writeResourceLocation, (friendlyByteBuf, data) ->
+                data.toPacket(friendlyByteBuf));
     }
 
     @SuppressWarnings({"UnusedReturnValue", "unused"})
     public static boolean handle(SyncDataPacket message, Supplier<NetworkEvent.Context> contextSupplier) {
-        CropsNSeedsData.setCropsMap( message.crop_map );
-        CropsNSeedsData.setSeedsList( message.seeds_list );
+        BnbCoreClient.setMaps(message.crop_map);
+        if (BnbCore.DEBUG) {
+            System.out.println("Packet size: " + message.getNbtSize());
+        }
         return true;
     }
 }
