@@ -5,6 +5,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
+/**
+ * Fix metal bundle apparent capacity
+ */
 @Mixin( ModRegistry.class )
 public abstract class MixinModRegistry {
 

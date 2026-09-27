@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Fix nature's compass crashing with BOP beta release
+ */
 @Mixin( BiomeUtils.class )
 public abstract class MixinBiomeUtils {
 
@@ -24,7 +27,7 @@ public abstract class MixinBiomeUtils {
      */
     @Overwrite( remap = false )
     public static List<ResourceLocation> getAllowedBiomeKeys(Level level) {
-        final List<ResourceLocation> biomeKeys = new ArrayList<ResourceLocation>();
+        final List<ResourceLocation> biomeKeys = new ArrayList<>();
         if (getBiomeRegistry(level).isPresent()) {
             for (Map.Entry<ResourceKey<Biome>, Biome> entry : getBiomeRegistry(level).get().entrySet()) {
                 Biome biome;
@@ -36,7 +39,7 @@ public abstract class MixinBiomeUtils {
 
                 if (biome != null) {
                     Optional<ResourceLocation> optionalBiomeKey = getKeyForBiome(level, biome);
-                    if (biome != null && optionalBiomeKey.isPresent() && !biomeKeyIsBlacklisted(level, optionalBiomeKey.get())) {
+                    if (optionalBiomeKey.isPresent() && !biomeKeyIsBlacklisted(level, optionalBiomeKey.get())) {
                         biomeKeys.add(optionalBiomeKey.get());
                     }
                 }

@@ -11,12 +11,7 @@ import net.minecraftforge.network.NetworkEvent;
 import java.util.Map;
 import java.util.function.Supplier;
 
-/**
- * @param seeds_list Seed resloc string, block/crop resloc string
- */
 public record SyncDataPacket(Map<ResourceLocation, CropData> crop_map) {
-    //TODO Not a TODO but a reminder, This packet can become too big
-
     public int getNbtSize() {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         encode(buffer);
