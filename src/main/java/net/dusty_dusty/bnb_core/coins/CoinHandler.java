@@ -207,17 +207,17 @@ public class CoinHandler {
 
             int nonCoinBundleItems = nonCoinItemList.stream().mapToInt(ItemStack::getCount).sum();
 
-            int maxCoins = getCapacity(pouch) - nonCoinBundleItems;
+            int maxCoinItems = getCapacity(pouch) - nonCoinBundleItems;
 
             int totalCoinValue = bundleCoinValue + stackValue;
 
             List<ItemStack> mergedCoins = getMergedCoins(totalCoinValue);
 
             int mergedCoinCount = mergedCoins.stream().mapToInt(ItemStack::getCount).sum();
-            if (mergedCoinCount <= maxCoins) {
+            if (mergedCoinCount <= maxCoinItems) {
                 pickup.setCount(0);
             } else {
-                int leftoverCoins = mergedCoinCount - maxCoins;
+                int leftoverCoins = mergedCoinCount - maxCoinItems;
                 pickup.setCount(leftoverCoins);
                 removeItemsFromList(mergedCoins, pickup);
             }
@@ -286,12 +286,15 @@ public class CoinHandler {
         int remainder = totalCoinValue;
         List<ItemStack> itemsList = new ArrayList<>();
         while (remainder > 0) {
-            for (Map.Entry<Item, Integer> entry : COIN_EXCHANGE.entrySet()) {
-                int count = remainder / entry.getValue();
+
+            for (int i = CONVERSIONS.size()-1; i >= 0; i--) {
+                Item item = CONVERSIONS.get(i).getFirst();
+                int coinValue = COIN_EXCHANGE.getInt(item);
+                int count = remainder / coinValue;
                 if (count > 0) {
-                    itemsList.add(new ItemStack(entry.getKey(), count));
+                    itemsList.add(new ItemStack(item, count));
                 }
-                remainder = remainder % entry.getValue();
+                remainder = remainder % coinValue;
             }
         }
         return itemsList;
