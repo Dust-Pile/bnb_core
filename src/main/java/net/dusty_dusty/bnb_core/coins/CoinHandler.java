@@ -153,7 +153,7 @@ public class CoinHandler {
             return false;
         }
 
-        if (!COIN_EXCHANGE.containsKey(incoming.getItem()) && incoming.getItem() != NETHERITE_COIN) {
+        if (!COIN_EXCHANGE.containsKey(incoming.getItem()) && !incoming.is(NETHERITE_COIN) && !incoming.is(NETHERITE_COINSTACK)) {
             return false;
         }
 
@@ -180,53 +180,66 @@ public class CoinHandler {
 
         ListTag itemsTag = tag.getList("Items", Tag.TAG_COMPOUND);
 
-        List<ItemStack> itemsList = getBundleItems(itemsTag);
+        List<ItemStack> bundleItems = getBundleItems(itemsTag);
+        List<ItemStack> newItemList = new ArrayList<>();
+        int capacity = getBundleCapacity(pouch);
+        int stackValue;
 
         //just add the item to the bundle
-        if (pickup.getItem() == NETHERITE_COIN) {
-            int capacity = getCapacity(pouch);
-            int bundleItemCount = itemsList.stream().mapToInt(ItemStack::getCount).sum();
-            int remaining = capacity - bundleItemCount;
-            if (remaining > 0) {
-                if (pickup.getCount() <= remaining) {//everything was picked up
-                    addItemsToList(itemsList, pickup);
-                    pickup.setCount(0);
-                } else {
-                    pickup.shrink(remaining);
-                    addItemsToList(itemsList, pickup);
-                }
-            }
-            setBundleItems(pouch,itemsList);
-        } else {
-            int stackValue = pickup.getCount() * CoinHandler.COIN_EXCHANGE.getInt(pickup.getItem());
+        if (pickup.is(NETHERITE_COIN) || pickup.is(NETHERITE_COINSTACK)) {
+            stackValue = pickup.getCount() * (pickup.is(NETHERITE_COINSTACK) ? 4 : 1);
 
-            int bundleCoinValue = itemsList.stream().mapToInt(stack -> stack.getCount() * CoinHandler.COIN_EXCHANGE
+            int bundleNetheriteCoinCount = countNetheriteCoins(bundleItems);
+
+            newItemList.addAll(bundleItems.stream().filter(stack -> !(pickup.is(NETHERITE_COIN) || pickup.is(NETHERITE_COINSTACK)))
+                    .toList());
+
+            int maxNetheriteCoins = capacity - getItemWeight(newItemList);
+            if (maxNetheriteCoins > 0) {
+                List<ItemStack> mergedNetheriteCoins = getMergedNetheriteCoins(stackValue+bundleNetheriteCoinCount);
+                int mergedNetheriteCoinCount = getItemWeight(mergedNetheriteCoins);
+                if (mergedNetheriteCoinCount <= maxNetheriteCoins) {//everything was picked up
+                    addItemsToList(newItemList, mergedNetheriteCoins);
+                    pickup.setCount(0);
+                } else {//some remain outside the bundle
+                    pickup.shrink(maxNetheriteCoins);//set to number of coins that can't be picked up
+                    removeItemFromList(mergedNetheriteCoins,pickup);//avoid duplication glitch
+                    addItemsToList(newItemList, mergedNetheriteCoins);
+                }
+                setBundleItems(pouch,newItemList);
+            }
+        } else {
+            stackValue = pickup.getCount() * CoinHandler.COIN_EXCHANGE.getInt(pickup.getItem());
+
+            int bundleCoinValue = bundleItems.stream().mapToInt(stack -> stack.getCount() * CoinHandler.COIN_EXCHANGE
                     .getInt(stack.getItem())).sum();
 
-            List<ItemStack> nonCoinItemList = itemsList.stream().filter(stack -> !COIN_EXCHANGE.containsKey(stack.getItem())).toList();
-
-            int nonCoinBundleItems = nonCoinItemList.stream().mapToInt(ItemStack::getCount).sum();
-
-            int maxCoinItems = getCapacity(pouch) - nonCoinBundleItems;
-
-            int totalCoinValue = bundleCoinValue + stackValue;
-
-            List<ItemStack> mergedCoins = getMergedCoins(totalCoinValue);
-
-            int mergedCoinCount = mergedCoins.stream().mapToInt(ItemStack::getCount).sum();
-            if (mergedCoinCount <= maxCoinItems) {
-                pickup.setCount(0);
-            } else {
-                int leftoverCoins = mergedCoinCount - maxCoinItems;
-                pickup.setCount(leftoverCoins);
-                removeItemsFromList(mergedCoins, pickup);
+            newItemList.addAll(bundleItems.stream().filter(stack -> !COIN_EXCHANGE.containsKey(stack.getItem())).toList());
+            int maxCoins = capacity - getItemWeight(newItemList);
+            if (maxCoins > 0) {
+                int totalCoinValue = bundleCoinValue + stackValue;
+                List<ItemStack> mergedCoins = getMergedCoins(totalCoinValue);
+                int mergedCoinCount = getItemWeight(mergedCoins);
+                if (mergedCoinCount <= maxCoins) {
+                    addItemsToList(newItemList, mergedCoins);
+                    pickup.setCount(0);
+                } else {
+                    pickup.shrink(maxCoins);
+                    removeItemFromList(mergedCoins, pickup);
+                    addItemsToList(newItemList,mergedCoins);
+                }
+                setBundleItems(pouch,newItemList);
             }
-            replaceCoinsInPouch(pouch, nonCoinItemList, mergedCoins);
         }
         return pickup.isEmpty();
     }
 
-    static void removeItemsFromList(List<ItemStack> list,ItemStack stack) {
+    static int countNetheriteCoins(List<ItemStack> items) {
+        return items.stream().filter(stack -> stack.is(NETHERITE_COINSTACK) || stack.is(NETHERITE_COINSTACK))
+                .mapToInt(stack -> stack.is(NETHERITE_COINSTACK) ? 4 : 1).sum();
+    }
+
+    static void removeItemFromList(List<ItemStack> list, ItemStack stack) {
         int remainder = stack.getCount();
         for (ItemStack listItemStack : list) {
             if (listItemStack.getItem() == stack.getItem()) {
@@ -242,7 +255,7 @@ public class CoinHandler {
         }
     }
 
-    static void addItemsToList(List<ItemStack> list,ItemStack stack) {
+    static void addItemToList(List<ItemStack> list, ItemStack stack) {
         int remainder = stack.getCount();
         for (ItemStack listItemStack : list) {
             if (listItemStack.getItem() == stack.getItem()) {
@@ -253,7 +266,13 @@ public class CoinHandler {
         list.add(stack.copy());
     }
 
-    static int getCapacity(ItemStack stack) {
+    static void addItemsToList(List<ItemStack> list, List<ItemStack> stacks) {
+        for (ItemStack stack : stacks) {
+            addItemToList(list, stack);
+        }
+    }
+
+    static int getBundleCapacity(ItemStack stack) {
         if (stack.getItem() instanceof BundleItem) {
             return 64;
         }
@@ -264,11 +283,9 @@ public class CoinHandler {
         return 0;
     }
 
-    //replace all coin items, leave non-coin items alone
-    static void replaceCoinsInPouch(ItemStack bundle,List<ItemStack> nonCoins,List<ItemStack> coins) {
-        List<ItemStack> items = new ArrayList<>(nonCoins);
-        items.addAll(coins);
-        setBundleItems(bundle,items);
+    //consider supporting stacks other than 64?
+    static int getItemWeight(List<ItemStack> stacks) {
+        return stacks.stream().mapToInt(ItemStack::getCount).sum();
     }
 
     static void setBundleItems(ItemStack bundle, List<ItemStack> items) {
@@ -297,14 +314,33 @@ public class CoinHandler {
                 remainder = remainder % coinValue;
             }
         }
+        //merge into stacks if possible
+
+
         return itemsList;
     }
 
-    private static ArrayList<ItemStack> getBundleItems(@Nullable ListTag pStack) {
+
+    static List<ItemStack> getMergedNetheriteCoins(int totalCoinValue) {
+        List<ItemStack> itemsList = new ArrayList<>();
+        int coinStacks = totalCoinValue / 4;
+        int coins = totalCoinValue % 4;
+        if (coins > 0) {
+            itemsList.add(new ItemStack(NETHERITE_COIN,coins));
+        }
+        if (coinStacks > 0) {
+            itemsList.add(new ItemStack(NETHERITE_COINSTACK,coinStacks));
+        }
+        return itemsList;
+    }
+
+    private static List<ItemStack> getBundleItems(@Nullable ListTag pStack) {
         if (pStack == null || pStack.isEmpty()) {return new ArrayList<>();}
         return pStack.stream().map(CompoundTag.class::cast).map(ItemStack::of)
-                .collect(ArrayList::new, List::add, List::addAll);//make sure the list is mutable
+                .toList();
     }
+
+
 
     //    'createdeco:copper_coin': NaN,
     //    'createdeco:zinc_coin': 4,
@@ -318,6 +354,11 @@ public class CoinHandler {
     public static Item BRASS_COIN;
     public static Item IRON_COIN;
     public static Item GOLD_COIN;
+
+    public static Item NETHERITE_COINSTACK;
+    public static Item BRASS_COINSTACK;
+    public static Item IRON_COINSTACK;
+    public static Item GOLD_COINSTACK;
 
     public static final int COPPER_PER_ZINC = 3;
     public static final int ZINC_PER_BRASS = 3;
@@ -341,6 +382,10 @@ public class CoinHandler {
         MinecraftForge.EVENT_BUS.addListener(EventPriority.LOW, CoinHandler::modifyTrades);
     }
 
+    public record CoinValue(Item coin,Item coinstack,int value) {
+
+    }
+
     public static void populate() {
         Registry<Item> registry = BuiltInRegistries.ITEM;
 
@@ -351,6 +396,12 @@ public class CoinHandler {
         BRASS_COIN = registry.get(ModIntegration.createdeco.id("brass_coin"));
         IRON_COIN = registry.get(ModIntegration.createdeco.id("iron_coin"));
         GOLD_COIN = registry.get(ModIntegration.createdeco.id("gold_coin"));
+
+        NETHERITE_COINSTACK = registry.get(ModIntegration.createdeco.id("netherite_coinstack"));
+
+        BRASS_COINSTACK = registry.get(ModIntegration.createdeco.id("brass_coinstack"));
+        IRON_COINSTACK = registry.get(ModIntegration.createdeco.id("iron_coinstack"));
+        GOLD_COINSTACK = registry.get(ModIntegration.createdeco.id("gold_coinstack"));
 
         CONVERSIONS.add(Pair.of(COPPER_COIN,1));
         CONVERSIONS.add(Pair.of(ZINC_COIN,COPPER_PER_ZINC));
