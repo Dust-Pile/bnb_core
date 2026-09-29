@@ -43,15 +43,15 @@ public class BnbRecipeProvider extends RecipeProvider {
                 //down conversion
                 CoinHandler.CoinValue pairBelow = CoinHandler.CONVERSIONS.get(i-1);
                 ShapelessRecipeBuilder shapeless = ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, pairBelow.coin(),pair.value());
-                ShapelessRecipeBuilder shapelessStack = ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, pairBelow.coinstack(),pair.value());
+             //   ShapelessRecipeBuilder shapelessStack = ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, pairBelow.coinstack(),pair.value());
 
                 ResourceLocation recipeId = BnbCore.id(RecipeBuilder.getDefaultRecipeId(pairBelow.coin()).getPath());
-                ResourceLocation recipeIdStack = BnbCore.id(RecipeBuilder.getDefaultRecipeId(pairBelow.coinstack()).getPath());
+             //   ResourceLocation recipeIdStack = BnbCore.id(RecipeBuilder.getDefaultRecipeId(pairBelow.coinstack()).getPath());
 
                 shapeless.requires(pair.coin()).unlockedBy("has_coin",has(pair.coin()))
                         .save(pWriter,recipeId.withSuffix("_reverse"));
-                shapelessStack.requires(pair.coinstack()).unlockedBy("has_coinstack",has(pair.coinstack()))
-                        .save(pWriter,recipeIdStack.withSuffix("_reverse"));
+              //  shapelessStack.requires(pair.coinstack()).unlockedBy("has_coinstack",has(pair.coinstack()))
+            //            .save(pWriter,recipeIdStack.withSuffix("_reverse"));
             }
         }
     }
