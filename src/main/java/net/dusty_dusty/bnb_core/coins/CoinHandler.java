@@ -30,6 +30,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
+import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.Nullable;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotResult;
@@ -301,23 +302,43 @@ public class CoinHandler {
 
     static List<ItemStack> getMergedCoins(int totalCoinValue) {
         int remainder = totalCoinValue;
-        List<ItemStack> itemsList = new ArrayList<>();
+        List<ItemStack> coins = new ArrayList<>();
         while (remainder > 0) {
-
             for (int i = CONVERSIONS.size()-1; i >= 0; i--) {
-                Item item = CONVERSIONS.get(i).getFirst();
+                Item item = CONVERSIONS.get(i).coin;
                 int coinValue = COIN_EXCHANGE.getInt(item);
                 int count = remainder / coinValue;
                 if (count > 0) {
-                    itemsList.add(new ItemStack(item, count));
+                    coins.add(new ItemStack(item, count));
                 }
                 remainder = remainder % coinValue;
             }
         }
+
+        List<ItemStack> coinStacks = new ArrayList<>();
         //merge into stacks if possible
+        for (int i = 0; i < coins.size(); i++) {
+            ItemStack stack = coins.get(i);
+            if (stack.getCount() >=4) {
+                int stackCount = stack.getCount()/4;
+                coinStacks.add(new ItemStack(getStack(stack.getItem()),stackCount));
+                stack.shrink(stackCount * 4);
+            }
+        }
+
+        coins.addAll(coinStacks);
 
 
-        return itemsList;
+        return coins;
+    }
+
+    public static Item getStack(Item coin) {
+        for (CoinValue coinValue : CONVERSIONS) {
+            if (coinValue.coin == coin) {
+                return coinValue.coinstack;
+            }
+        }
+        throw new IllegalArgumentException("Cannot get stack for coin " + coin);//should never happen
     }
 
 
@@ -356,6 +377,8 @@ public class CoinHandler {
     public static Item GOLD_COIN;
 
     public static Item NETHERITE_COINSTACK;
+    public static Item COPPER_COINSTACK;
+    public static Item ZINC_COINSTACK;
     public static Item BRASS_COINSTACK;
     public static Item IRON_COINSTACK;
     public static Item GOLD_COINSTACK;
@@ -365,7 +388,7 @@ public class CoinHandler {
     public static final int BRASS_PER_IRON = 6;
     public static final int IRON_PER_GOLD = 8;
 
-    public static final List<Pair<Item,Integer>> CONVERSIONS = new ArrayList<>();
+    public static final List<CoinValue> CONVERSIONS = new ArrayList<>();
 
     public static void setup() {
 
@@ -373,9 +396,10 @@ public class CoinHandler {
 
         int mult = 1;
         for (int i = 0; i < CONVERSIONS.size(); i++) {
-            Pair<Item, Integer> pair = CONVERSIONS.get(i);
-            mult *= pair.getSecond();
-            COIN_EXCHANGE.put(pair.getFirst(), mult);
+            CoinValue pair = CONVERSIONS.get(i);
+            mult *= pair.value;
+            COIN_EXCHANGE.put(pair.coin, mult);
+            COIN_EXCHANGE.put(pair.coinstack,mult * 4);
         }
 
         MinecraftForge.EVENT_BUS.addListener(CoinHandler::onLoot);
@@ -383,7 +407,13 @@ public class CoinHandler {
     }
 
     public record CoinValue(Item coin,Item coinstack,int value) {
+        int stackValue() {
+           return value * 4;
+        }
 
+        int coinValue() {
+            return value;
+        }
     }
 
     public static void populate() {
@@ -398,15 +428,16 @@ public class CoinHandler {
         GOLD_COIN = registry.get(ModIntegration.createdeco.id("gold_coin"));
 
         NETHERITE_COINSTACK = registry.get(ModIntegration.createdeco.id("netherite_coinstack"));
-
+        COPPER_COINSTACK = registry.get(ModIntegration.createdeco.id("copper_coinstack"));
+        ZINC_COINSTACK = registry.get(ModIntegration.createdeco.id("zinc_coinstack"));
         BRASS_COINSTACK = registry.get(ModIntegration.createdeco.id("brass_coinstack"));
         IRON_COINSTACK = registry.get(ModIntegration.createdeco.id("iron_coinstack"));
         GOLD_COINSTACK = registry.get(ModIntegration.createdeco.id("gold_coinstack"));
 
-        CONVERSIONS.add(Pair.of(COPPER_COIN,1));
-        CONVERSIONS.add(Pair.of(ZINC_COIN,COPPER_PER_ZINC));
-        CONVERSIONS.add(Pair.of(BRASS_COIN,ZINC_PER_BRASS));
-        CONVERSIONS.add(Pair.of(IRON_COIN,BRASS_PER_IRON));
-        CONVERSIONS.add(Pair.of(GOLD_COIN,IRON_PER_GOLD));
+        CONVERSIONS.add(new CoinValue(COPPER_COIN,COPPER_COINSTACK,1));
+        CONVERSIONS.add(new CoinValue(ZINC_COIN,ZINC_COINSTACK,COPPER_PER_ZINC));
+        CONVERSIONS.add(new CoinValue(BRASS_COIN,BRASS_COINSTACK,ZINC_PER_BRASS));
+        CONVERSIONS.add(new CoinValue(IRON_COIN,IRON_COINSTACK,BRASS_PER_IRON));
+        CONVERSIONS.add(new CoinValue(GOLD_COIN,GOLD_COINSTACK,IRON_PER_GOLD));
     }
 }

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "createdeco:copper_coinstack"
+    },
+    {
+      "item": "createdeco:copper_coinstack"
+    },
+    {
+      "item": "createdeco:copper_coinstack"
+    }
+  ],
+  "result": {
+    "item": "createdeco:zinc_coinstack"
+  }
+}

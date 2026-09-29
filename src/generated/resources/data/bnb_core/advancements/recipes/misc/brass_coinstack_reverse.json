@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_coinstack": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "createdeco:iron_coinstack"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "bnb_core:brass_coinstack_reverse"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_coinstack",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "bnb_core:brass_coinstack_reverse"
+    ]
+  },
+  "sends_telemetry_event": false
+}
