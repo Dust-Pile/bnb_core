@@ -94,42 +94,7 @@ public class BnbCore
 
     private void commands(RegisterCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
-
-        dispatcher.register(Commands.literal(MODID).requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
-                .then(Commands.literal("unit_test")
-                        .then(Commands.literal("coin_pouch_0")
-                                .executes(BnbCore::coinPouch0)
-                        )
-                )
-        );
-    }
-
-    private static int coinPouch0(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-        ServerPlayer player = ctx.getSource().getPlayerOrException();
-        //clear the coin pouch and inventory
-        player.getInventory().clearContent();
-
-        ICuriosItemHandler curiosInventory = CuriosApi.getCuriosInventory(player).orElseThrow(IllegalStateException::new);
-
-        Map<String, ICurioStacksHandler> curios = curiosInventory.getCurios();
-
-        ICurioStacksHandler curioStacksHandler = curios.get("pouch");
-
-        for (int i = 0 ; i < curioStacksHandler.getSlots() ; i++) {
-            curioStacksHandler.getStacks().setStackInSlot(i, ItemStack.EMPTY);
-        }
-
-        curioStacksHandler.getStacks().setStackInSlot(0, Items.BUNDLE.getDefaultInstance());
-
-        ItemStack brasscoins = CoinHandler.BRASS_COIN.getDefaultInstance();
-
-        brasscoins.setCount(32);
-
-        ItemEntity itemEntity = new ItemEntity(player.level(),player.getX(),player.getY(),player.getZ(),brasscoins);
-
-        player.level().addFreshEntity(itemEntity);
-
-        return 1;
+        UnitTests.register(dispatcher);
     }
 
     private void onHurt(LivingDamageEvent event) {
