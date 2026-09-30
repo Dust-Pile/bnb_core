@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "createdeco:iron_coinstack"
+    },
+    {
+      "item": "createdeco:iron_coinstack"
+    },
+    {
+      "item": "createdeco:iron_coinstack"
+    },
+    {
+      "item": "createdeco:iron_coinstack"
+    },
+    {
+      "item": "createdeco:iron_coinstack"
+    },
+    {
+      "item": "createdeco:iron_coinstack"
+    },
+    {
+      "item": "createdeco:iron_coinstack"
+    },
+    {
+      "item": "createdeco:iron_coinstack"
+    }
+  ],
+  "result": {
+    "item": "createdeco:gold_coinstack"
+  }
+}
