@@ -12,14 +12,15 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+/**
+ * Allow transfer of properties
+ * TODO: Make this more generic (armor, not just tool items)
+ */
 @Mixin( CastingBlockEntity.class )
 public abstract class MixinCastingRecipe {
 
     @Shadow( remap = false )
     public SmartInventory moldInv;
-
-    @Shadow( remap = false )
-    public CastingFluidTank inputTank;
 
     @Redirect( method = "updateCasting",
             at = @At( value = "INVOKE", target = "Lfr/lucreeper74/createmetallurgy/content/blocks/casting/recipe/CastingRecipe;getResultItem(Lnet/minecraft/core/RegistryAccess;)Lnet/minecraft/world/item/ItemStack;" )

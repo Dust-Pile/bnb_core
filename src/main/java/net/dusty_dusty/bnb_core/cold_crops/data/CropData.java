@@ -17,19 +17,14 @@ import java.util.function.Consumer;
 
 public class CropData {
     private Temperature.Units type; //C or F
-    private Optional<Block> transformCold;
-    private Optional<Block> transformHot;//The Block to transform to when frozen
-    private Item seedItem;
-    private Optional<Integer> minTemp; //below this temp the plant freezes
-    private Optional<Integer> maxTemp; //above this temp the plant dies
+    private final Optional<Block> transformCold;
+    private final Optional<Block> transformHot;//The Block to transform to when frozen
+    private final Item seedItem;
+    private final Optional<Short> minTemp; //below this temp the plant freezes
+    private final Optional<Short> maxTemp; //above this temp the plant dies
 
     public CropData(JsonElement element) {
         JsonObject jsonObject = element.getAsJsonObject();
-        this.maxTemp = Optional.ofNullable(jsonObject.has("max") ? jsonObject.get("max").getAsInt() : null);
-        this.minTemp = Optional.ofNullable(jsonObject.has("min") ? jsonObject.get("min").getAsInt() : null);
-
-        //Defaults to C because F makes no sense as a European :)
-
         if (jsonObject.has("type")) {
             String val = jsonObject.get("type").getAsString().toUpperCase();
             try {
@@ -40,6 +35,9 @@ public class CropData {
         } else {
             this.type = Temperature.Units.C;
         }
+
+        this.maxTemp = Optional.ofNullable(jsonObject.has("max") ? jsonObject.get("max").getAsShort() : null);
+        this.minTemp = Optional.ofNullable(jsonObject.has("min") ? jsonObject.get("min").getAsShort() : null);
 
         String supposedTransform = jsonObject.has("transforms_hot") ? jsonObject.get("transforms_hot").getAsString() : null;
         if (supposedTransform != null) {
@@ -76,7 +74,7 @@ public class CropData {
     }
 
     public CropData(Temperature.Units units, Optional<Block> transformCold, Optional<Block> transformHot,
-                    Item seedItem, Optional<Integer> i1, Optional<Integer> i) {
+                    Item seedItem, Optional<Short> i1, Optional<Short> i) {
         this.type = units;
         this.transformCold = transformCold;
         this.transformHot = transformHot;
@@ -114,14 +112,14 @@ public class CropData {
         consumer.accept(transformHot.get());
     }
 
-    //PLEASE ONLY USE IN RENDERING
+    @SuppressWarnings("SimplifyOptionalCallChains") //PLEASE ONLY USE IN RENDERING
     public @Nullable Integer getMaxTemp() {
-        return maxTemp.orElse(null);
+        return maxTemp.map(temp -> (int) temp).orElse(null);
     }
 
-    //PLEASE ONLY USE IN RENDERING
+    @SuppressWarnings("SimplifyOptionalCallChains") //PLEASE ONLY USE IN RENDERING
     public @Nullable Integer getMinTemp() {
-        return minTemp.orElse(null);
+        return minTemp.map(temp -> (int) temp).orElse(null);
     }
 
     public Temperature.Units getType() {
@@ -132,24 +130,36 @@ public class CropData {
         return seedItem;
     }
 
+    // TODO: Test experimental! Is this different than writeShort?
     public void toPacket(FriendlyByteBuf packet) {
         packet.writeEnum(type);
         packet.writeOptional(transformCold, (FriendlyByteBuf buf, Block block) -> buf.writeId(BuiltInRegistries.BLOCK,block));
         packet.writeOptional(transformHot, (FriendlyByteBuf buf, Block block) -> buf.writeId(BuiltInRegistries.BLOCK,block));
         packet.writeId(BuiltInRegistries.ITEM,this.seedItem);
-        packet.writeOptional(this.minTemp, FriendlyByteBuf::writeInt);
-        packet.writeOptional(this.maxTemp, FriendlyByteBuf::writeInt);
+
+        Optional<Integer> compactedTemps = Optional.of(((int) this.minTemp.get() << 16)
+                | (int) this.maxTemp.get());
+        packet.writeOptional(compactedTemps, FriendlyByteBuf::writeInt);
+//        packet.writeOptional(this.minTemp, FriendlyByteBuf::writeShort);
+//        packet.writeOptional(this.maxTemp, FriendlyByteBuf::writeShort);
     }
 
+    // TODO: Test experimental! Is this different than writeShort?
     public static CropData fromPacket(FriendlyByteBuf buf) {
         Temperature.Units units = buf.readEnum(Temperature.Units.class);
         Optional<Block> transformCold = buf.readOptional(buf1 -> buf1.readById(BuiltInRegistries.BLOCK));
         Optional<Block> transformHot = buf.readOptional(buf1 -> buf1.readById(BuiltInRegistries.BLOCK));
         Item seedItem = buf.readById(BuiltInRegistries.ITEM);
-        Optional<Integer> cold = buf.readOptional(FriendlyByteBuf::readInt);
-        Optional<Integer> hot = buf.readOptional(FriendlyByteBuf::readInt);
 
-        return new CropData(units,transformCold,transformHot,
-                seedItem,cold,hot);
+        Optional<Integer> compactedTemps = buf.readOptional(FriendlyByteBuf::readInt);
+        Optional<Short> cold = compactedTemps.map(val -> (short) (val >> 16));
+        Optional<Short> hot = compactedTemps.map(val ->
+                (short) ((val & 0x0000FFFF) * ((val & 0x00008000) > 0 ? -1 : 1))
+        );
+
+//        Optional<Short> cold = buf.readOptional(FriendlyByteBuf::readShort);
+//        Optional<Short> hot = buf.readOptional(FriendlyByteBuf::readShort);
+
+        return new CropData(units,transformCold,transformHot, seedItem, cold, hot);
     }
 }

@@ -56,6 +56,12 @@ import org.slf4j.Logger;
 
 import top.theillusivec4.curios.api.CuriosApi;
 
+import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
+import top.theillusivec4.curios.api.type.inventory.ICurioStacksHandler;
+
+import java.util.List;
+import java.util.Map;
+
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(BnbCore.MODID)
 public class BnbCore
@@ -128,7 +134,7 @@ public class BnbCore
     }
 
     public static ResourceLocation id(String s) {
-        return new ResourceLocation(MODID, s);
+        return ResourceLocation.fromNamespaceAndPath(MODID, s);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {

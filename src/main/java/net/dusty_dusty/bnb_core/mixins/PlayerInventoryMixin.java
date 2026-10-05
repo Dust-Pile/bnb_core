@@ -11,6 +11,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Inventory.class)
 public class PlayerInventoryMixin {
 
+    /**
+     * Collect coins into coin pouch slot
+     */
     @Inject(method = "add(Lnet/minecraft/world/item/ItemStack;)Z", at = @At("HEAD"), cancellable = true)
     private void interceptItems(ItemStack stack, CallbackInfoReturnable<Boolean> cir) {
         if (CoinHandler.interceptItem((Inventory) (Object) this, stack)) cir.setReturnValue(true);

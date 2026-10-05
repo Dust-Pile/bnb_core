@@ -14,7 +14,7 @@ public enum ModIntegration {
     public final boolean loaded;
 
     public ResourceLocation id(String path) {
-        return new ResourceLocation(name(), path);
+        return ResourceLocation.fromNamespaceAndPath(name(), path);
     }
 
     ModIntegration() {
