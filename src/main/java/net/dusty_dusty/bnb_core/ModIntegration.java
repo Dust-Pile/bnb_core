@@ -6,7 +6,8 @@ import net.minecraftforge.fml.ModList;
 public enum ModIntegration {
     createdeco,
     curios,
-    metalbundles;
+    metalbundles,
+    thesilverage;
 
     public static final ModIntegration[] values = values();
 

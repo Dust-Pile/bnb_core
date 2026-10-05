@@ -1,4 +1,4 @@
-package net.dusty_dusty.bnb_core.mixins.lowlands;
+package net.dusty_dusty.bnb_core.mixins.integration.lowlands;
 
 import net.mcreator.lowlandsclothing.item.SlimyFibersItem;
 import net.minecraft.network.chat.Component;

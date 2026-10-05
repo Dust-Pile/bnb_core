@@ -1,2 +1,4 @@
-// 1.20.1	2026-08-27T22:21:52.632694	Tags for minecraft:item mod id bnb_core
+// 1.20.1	2026-10-05T15:00:17.4760997	Tags for minecraft:item mod id bnb_core
+ba30a49f72bfe93ac082136f42bce0194792f3f5 data/bnb_core/tags/items/silver_armor.json
+94076f5f9a9306bf67a92f3025acb5c11fc969c8 data/bnb_core/tags/items/silver_weapons.json
 8549b762563fb8215853150344ef3a20278898f9 data/curios/tags/items/pouch.json
