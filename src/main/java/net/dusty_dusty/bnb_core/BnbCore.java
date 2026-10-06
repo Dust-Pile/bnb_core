@@ -13,38 +13,31 @@ import net.dusty_dusty.bnb_core.cold_crops.data.CropsNSeedsData;
 import net.dusty_dusty.bnb_core.cold_crops.network.PacketChannel;
 import net.dusty_dusty.bnb_core.datagen.BnbDatagen;
 import net.dusty_dusty.bnb_core.init.BNBCoreAttributes;
-import net.dusty_dusty.bnb_core.init.BNBCoreEffects;
-import net.dusty_dusty.bnb_core.init.BNBCorePotions;
 import net.dusty_dusty.bnb_core.lod_handling.DhBlockFixer;
 import net.dusty_dusty.bnb_core.tags.BnbItemTags;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.ItemAttributeModifierEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.event.entity.EntityMobGriefingEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -55,12 +48,6 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.slf4j.Logger;
 
 import top.theillusivec4.curios.api.CuriosApi;
-
-import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
-import top.theillusivec4.curios.api.type.inventory.ICurioStacksHandler;
-
-import java.util.List;
-import java.util.Map;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(BnbCore.MODID)
@@ -99,28 +86,18 @@ public class BnbCore
         }
     }
 
-    public static final AttributeModifier mod1 = new AttributeModifier(BNBCoreAttributes.uuid.toString(),1, AttributeModifier.Operation.ADDITION);
-    public static final AttributeModifier mod2 = new AttributeModifier(BNBCoreAttributes.uuid.toString(),2, AttributeModifier.Operation.ADDITION);
-    public static final AttributeModifier mod3 = new AttributeModifier(BNBCoreAttributes.uuid.toString(),3, AttributeModifier.Operation.ADDITION);
+
 
     private void getAttributes(ItemAttributeModifierEvent event) {
         if (ModIntegration.thesilverage.loaded) {
             ItemStack stack = event.getItemStack();
             EquipmentSlot slot = event.getSlotType();
             if (stack.is(BnbItemTags.SILVER_WEAPONS) && slot == EquipmentSlot.MAINHAND) {
-                event.addModifier(BNBCoreAttributes.UNDEAD_DAMAGE.get(),mod1);
-            } else {
-                event.removeModifier(BNBCoreAttributes.UNDEAD_DAMAGE.get(),mod1);
+                event.addModifier(BNBCoreAttributes.UNDEAD_DAMAGE.get(),BNBCoreAttributes.MAINHAND);
             }
             if (stack.is(BnbItemTags.SILVER_ARMOR) && stack.getItem() instanceof ArmorItem armorItem && armorItem.getEquipmentSlot() == slot) {
-                event.addModifier(BNBCoreAttributes.UNDEAD_ARMOR.get(),
-                        new AttributeModifier(BNBCoreAttributes.uuid.toString(),slot == EquipmentSlot.CHEST ? 2 : 1,
-                                AttributeModifier.Operation.ADDITION));
-                event.addModifier(BNBCoreAttributes.UNDEAD_ARMOR_TOUGHNESS.get(),
-                        new AttributeModifier(BNBCoreAttributes.uuid.toString(),3, AttributeModifier.Operation.ADDITION));
-            } else {
-                event.removeModifier(BNBCoreAttributes.UNDEAD_ARMOR.get(),mod2);
-                event.removeModifier(BNBCoreAttributes.UNDEAD_ARMOR_TOUGHNESS.get(),mod3);
+                event.addModifier(BNBCoreAttributes.UNDEAD_ARMOR.get(), BNBCoreAttributes.ARMOR_MODIFIERS[slot.getIndex()]);
+                event.addModifier(BNBCoreAttributes.UNDEAD_ARMOR_TOUGHNESS.get(), BNBCoreAttributes.ARMOR_TOUGHNESS_MODIFIERS[slot.getIndex()]);
             }
         }
     }
