@@ -4,13 +4,15 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "bnb_core.refmap.json",
   "mixins": [
+    "LivingEntityMixin",
     "MixinBiomeUtils",
     "MixinCastingRecipe",
     "MixinCropBlock",
     "MixinModRegistry",
     "PlayerInventoryMixin",
-    "lowlands.MixinQualityPlantFibersItem",
-    "lowlands.MixinSlimyFibersItem",
+    "integration.SilverAgeModTiersMixin",
+    "integration.lowlands.MixinQualityPlantFibersItem",
+    "integration.lowlands.MixinSlimyFibersItem",
     "tierUpgrade.MixinCopperTier",
     "tierUpgrade.MixinDDTiers",
     "tierUpgrade.MixinTiers"

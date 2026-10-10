@@ -19,5 +19,6 @@ public class BnbDatagen {
         gen.addProvider(true,new BnbCuriosDataProvider(event));
         gen.addProvider(true,new CoinDropsProvider(output,lookup));
         gen.addProvider(true,new BnbRecipeProvider(output));
+        gen.addProvider(true,new BNBLangProvider(output));
     }
 }

@@ -1,5 +1,6 @@
 package net.dusty_dusty.bnb_core.datagen;
 
+import com.phantomwing.thesilverage.item.ModItems;
 import net.dusty_dusty.bnb_core.BnbCore;
 import net.dusty_dusty.bnb_core.tags.BnbItemTags;
 import net.minecraft.core.HolderLookup;
@@ -20,5 +21,14 @@ public class BnbItemTagsProvider extends ItemTagsProvider {
     @Override
     protected void addTags(HolderLookup.Provider pProvider) {
         tag(BnbItemTags.POUCH).add(Items.BUNDLE);
+        tag(BnbItemTags.SILVER_WEAPONS).add(
+                ModItems.SILVER_AXE.get(),
+                ModItems.SILVER_HOE.get(),
+                ModItems.SILVER_PICKAXE.get(),
+                ModItems.SILVER_SHOVEL.get(),
+                ModItems.SILVER_SWORD.get()
+        );
+        tag(BnbItemTags.SILVER_ARMOR).add(ModItems.SILVER_HELMET.get(),ModItems.SILVER_CHESTPLATE.get(),
+                ModItems.SILVER_LEGGINGS.get(),ModItems.SILVER_BOOTS.get());
     }
 }

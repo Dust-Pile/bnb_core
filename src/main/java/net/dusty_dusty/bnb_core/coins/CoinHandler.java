@@ -11,9 +11,7 @@ import net.dusty_dusty.bnb_core.coins.trades.*;
 import net.dusty_dusty.bnb_core.cold_crops.data.CoinData;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -30,6 +28,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
+import org.antlr.runtime.misc.IntArray;
 import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.Nullable;
 import top.theillusivec4.curios.api.CuriosApi;
@@ -129,12 +128,12 @@ public class CoinHandler {
 
     static List<ServerPlayer> getKillCredits(LivingEntity entity) {
         CompoundTag tag = entity.getPersistentData();
-        ListTag listTag = tag.getList(KILL_CREDIT, Tag.TAG_STRING);
+        ListTag listTag = tag.getList(KILL_CREDIT, Tag.TAG_INT_ARRAY);
         List<ServerPlayer> list = new ArrayList<>();
         MinecraftServer server = entity.getServer();
         for (Tag t : listTag) {
-            String s = t.toString();
-            UUID uuid = UUID.fromString(s);
+            IntArrayTag integerTag = (IntArrayTag) t;
+            UUID uuid = NbtUtils.loadUUID(integerTag);
             ServerPlayer player = server.getPlayerList().getPlayer(uuid);
             if (player != null) {
                 list.add(player);
